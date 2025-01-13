@@ -14,7 +14,7 @@
             mysqli_stmt_bind_param($stmt, "iis", $userId, $tweetId, $commentContent);
             if (mysqli_stmt_execute($stmt)) {
                 echo "Comment added successfully!";
-                header("Location: comment.php");
+                header("Location: comment.php?tweet_id=$tweetId");
                 exit;
             } else {
                 echo "Error: Could not add the comment.";

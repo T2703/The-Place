@@ -65,7 +65,7 @@
         echo "</form>";
 
         // Comment button 
-        echo "<form method='post' action='comment.php' style='margin-top: 10px;'>";
+        echo "<form method='get' action='comment.php' style='margin-top: 10px;'>";
         echo "<input type='hidden' name='tweet_id' value='{$row['id']}'>";
         echo "<button type='submit' name='comment' style='color: white; background-color: blue; border: none; padding: 5px 10px; cursor: pointer;'>Comment</button>";
         echo "</form>";
