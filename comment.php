@@ -163,6 +163,7 @@
                         echo "<form method='post' action='deleteCommentHandler.php' style='display:inline;'>";
                         echo "<input type='hidden' name='type' value='comment'>";
                         echo "<input type='hidden' name='tweet_id' value='{$row['comment_id']}'>";
+                        echo "<input type='hidden' name='tweet_id2' value='{$row['tweet_id']}'>";
                         echo "<button type='submit' name='delete' style='color: white; background-color: red; border: none; padding: 5px 10px;'>Delete Comment</button>";
                         echo "</form>";
                     }

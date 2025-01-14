@@ -14,6 +14,7 @@
 
         // Validate tweet ID
         $tweetId = filter_input(INPUT_POST, 'tweet_id', FILTER_VALIDATE_INT);
+        $tweetIdGoBack = filter_input(INPUT_POST, 'tweet_id2', FILTER_VALIDATE_INT); // Voodoo sorry
         if (!$tweetId) {
             echo "Invalid tweet ID.";
             exit;
@@ -43,7 +44,7 @@
         if ($stmtDelete) {
             mysqli_stmt_bind_param($stmtDelete, "i", $tweetId);
             if (mysqli_stmt_execute($stmtDelete)) {
-                header("Location: comment.php?tweet_id=$tweetId");
+                header("Location: comment.php?tweet_id=$tweetIdGoBack");
             } else {
                 echo "Error: Could not delete the comment.";
             }
