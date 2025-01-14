@@ -101,18 +101,21 @@
         tweets.title AS tweet_title,
         tweets.content AS tweet_content,
         tweets.created_at AS tweet_created_at,
+        tweets.user_id AS tweet_owner_id,
         users.username AS tweet_author,
+        comments.id AS comment_id,
         comments.content AS comment_content,
-        comments.created_at AS comment_created_at
+        comments.created_at AS comment_created_at,
+        comments.user_id AS comment_owner_id 
     FROM tweets
-    LEFT JOIN comments ON tweets.id = comments.tweet_id AND comments.user_id = ?
+    LEFT JOIN comments ON tweets.id = comments.tweet_id
     JOIN users ON tweets.user_id = users.id
     WHERE tweets.id = ?
     ORDER BY comments.created_at DESC";
     
     // Needed for filtering the data (i is for injection we to prevent that)
     $stmt = mysqli_prepare($connection, $sql);
-    mysqli_stmt_bind_param($stmt, "ii", $userId, $tweetId);
+    mysqli_stmt_bind_param($stmt, "i", $tweetId);
 
     try {
         mysqli_stmt_execute($stmt);
@@ -133,6 +136,15 @@
                     echo "<p><em>Posted on {$row['tweet_created_at']}</em></p>";
                     echo "</div>";
 
+                    // Show delete button for post owner
+                    if ($userId == $row['tweet_owner_id']) {
+                        echo "<form method='post' action='deleteHandler.php' style='display:inline;'>";
+                        echo "<input type='hidden' name='type' value='post'>";
+                        echo "<input type='hidden' name='id' value='{$row['tweet_id']}'>";
+                        echo "<button type='submit' style='color: white; background-color: red; border: none; padding: 5px 10px;'>Delete Post</button>";
+                        echo "</form>";
+                    }
+
                     // Comment button 
                     echo "<button onclick='openModal({$row['tweet_id']})' style='color: white; background-color: blue; border: none; padding: 5px 10px;'>Comment</button>";
 
@@ -146,6 +158,14 @@
                     echo "<p>{$row['comment_content']}</p>";
                     echo "<p><em>Commented on {$row['comment_created_at']}</em></p>";
                     echo "</div>";
+
+                    if ($userId == $row['comment_owner_id'] || $userId == $row['tweet_owner_id']) {
+                        echo "<form method='post' action='deleteCommentHandler.php' style='display:inline;'>";
+                        echo "<input type='hidden' name='type' value='comment'>";
+                        echo "<input type='hidden' name='tweet_id' value='{$row['comment_id']}'>";
+                        echo "<button type='submit' name='delete' style='color: white; background-color: red; border: none; padding: 5px 10px;'>Delete Comment</button>";
+                        echo "</form>";
+                    }
                 }
 
                 // Inform that there are no comments
