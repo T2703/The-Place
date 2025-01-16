@@ -73,7 +73,7 @@
             document.getElementById("edit_comment_content").value = commentContent;
 
             // Set the tweet_id in the hidden input field
-            document.getElementById("tweet_id").value = tweetId;
+            document.getElementById("edit_tweet_id").value = tweetId;
         }
 
         function closeModal2() {
@@ -100,7 +100,7 @@
             <h3>Edit Your Comment</h3>
             <form method="post" action="commentEditHandler.php">
                 <input type="hidden" name="comment_id" id="comment_id">
-                <input type="hidden" name="tweet_id" id="tweet_id">
+                <input type="hidden" name="tweet_id" id="edit_tweet_id">
                 <textarea name="comment_content" id="edit_comment_content" rows="4" style="width: 100%; padding: 10px;" placeholder="Write your comment here..." required></textarea>
                 <br>
                 <button type="submit" name="submit_edit" style="margin-top: 10px; background-color: green; color: white; padding: 10px 20px; border: none;">Edit comment</button>
