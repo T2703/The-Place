@@ -53,13 +53,13 @@
         echo "</div>";
         
         // Like button 
-        echo "<form method='post' action='likeHandler.php' style='margin-top: 10px;'>";
+        echo "<form method='post' action='Handlers/likeHandler.php' style='margin-top: 10px;'>";
         echo "<input type='hidden' name='tweet_id' value='{$row['id']}'>";
         echo "<button type='submit' name='like' style='color: white; background-color: green; border: none; padding: 5px 10px; cursor: pointer;'>Like</button>";
         echo "</form>";
     
         // Dislike button 
-        echo "<form method='post' action='dislikeHandler.php' style='margin-top: 10px;'>";
+        echo "<form method='post' action='Handlers/dislikeHandler.php' style='margin-top: 10px;'>";
         echo "<input type='hidden' name='tweet_id' value='{$row['id']}'>";
         echo "<button type='submit' name='dislike' style='color: white; background-color: red; border: none; padding: 5px 10px; cursor: pointer;'>Dislike</button>";
         echo "</form>";

@@ -144,7 +144,7 @@
     FROM tweets
     LEFT JOIN comments ON tweets.id = comments.tweet_id
     JOIN users ON tweets.user_id = users.id
-    WHERE tweets.id = ?
+    WHERE tweets.id = ? AND (comments.parent_comment_id IS NULL OR comments.parent_comment_id = 0)
     ORDER BY comments.created_at DESC";
     
     // Needed for filtering the data (i is for injection we to prevent that)
@@ -208,6 +208,12 @@
                         $escapedCommentContent = htmlspecialchars($row['comment_content'], ENT_QUOTES, 'UTF-8');
                         echo "<button onclick='openModal2({$row['comment_id']}, \"" . addslashes($escapedCommentContent) . "\", {$row['tweet_id']})' style='color: white; background-color: orange; border: none; padding: 5px 10px;'>Edit</button>";
                     }
+
+                    // Reply button
+                    echo "<form method='get' action='replies.php' style='margin-top: 10px;'>";
+                    echo "<input type='hidden' name='comment_id' value='{$row['comment_id']}'>";
+                    echo "<button type='submit' name='update' style='color: white; background-color: green; border: none; padding: 5px 10px; cursor: pointer;'>Reply</button>";
+                    echo "</form>";
                 }
 
                 // Inform that there are no comments
