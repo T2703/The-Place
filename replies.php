@@ -181,6 +181,7 @@
                     if ($userId == $row['reply_owner_id']) {
                         echo "<form method='post' action='Handlers/replyDeleteHandler.php' style='display:inline;'>";
                         echo "<input type='hidden' name='comment_id' value='{$row['reply_id']}'>";
+                        echo "<input type='hidden' name='parent_comment_id2' value='{$row['parent_comment_id']}'>";
                         echo "<button type='submit' name='delete' style='color: white; background-color: red; border: none; padding: 5px 10px;'>Delete Reply</button>";
                         echo "</form>";
                     }

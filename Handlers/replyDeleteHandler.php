@@ -14,6 +14,7 @@
 
         // Validate the reply/comment ID
         $commentId = filter_input(INPUT_POST, 'comment_id', FILTER_VALIDATE_INT);
+        $commentId2 = filter_input(INPUT_POST, 'parent_comment_id2', FILTER_VALIDATE_INT);
         if (!$commentId) {
             echo "Invalid comment ID.";
             exit;
@@ -52,7 +53,7 @@
             mysqli_stmt_bind_param($stmtDelete, "i", $commentId);
             if (mysqli_stmt_execute($stmtDelete)) {
                 // Redirect back to the replies page
-                header("Location: ../comment.php?comment_id=$commentId");
+                header("Location: ../replies.php?comment_id=$commentId2");
                 exit;
             } else {
                 echo "Error: Could not delete the comment.";
