@@ -61,6 +61,26 @@
             // Hide the modal
             document.getElementById("commentModal").style.display = "none";
         }
+
+        // Not good naming but this is for the edit/update comment
+        function openModal2(replyId, replyContent, tweetId) {
+            // Show the modal
+            document.getElementById("replyEditModal").style.display = "block";
+
+            // Set the tweet_id in the hidden input field
+            document.getElementById("edit_reply_id").value = replyId;
+
+            // Set the comment content in the hidden input field
+            document.getElementById("edit_reply_content").value = replyContent;
+
+            // Set the tweet_id in the hidden input field
+            document.getElementById("edit_tweet_id").value = tweetId;
+        }
+
+        function closeModal2() {
+            // Hide the modal
+            document.getElementById("replyEditModal").style.display = "none";
+        }
     </script>
     
     <div id="replyModal" class="modal">
@@ -73,6 +93,19 @@
                 <textarea name="comment_content" rows="4" style="width: 100%; padding: 10px;" placeholder="Write your comment here..." required></textarea>
                 <br>
                 <button type="submit" name="submit" style="margin-top: 10px; background-color: green; color: white; padding: 10px 20px; border: none;">Submit Comment</button>
+            </form>
+        </div>
+    </div>
+    <div id="replyEditModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal2()">&times;</span>
+            <h3>Edit Your Comment</h3>
+            <form method="post" action="Handlers/replyEditHandler.php">
+                <input type="hidden" name="comment_id" id="edit_reply_id">
+                <input type="hidden" name="tweet_id" id="edit_tweet_id">
+                <textarea name="comment_content" id="edit_reply_content" rows="4" style="width: 100%; padding: 10px;" placeholder="Write your comment here..." required></textarea>
+                <br>
+                <button type="submit" name="submit_edit" style="margin-top: 10px; background-color: green; color: white; padding: 10px 20px; border: none;">Edit comment</button>
             </form>
         </div>
     </div>
@@ -184,6 +217,9 @@
                         echo "<input type='hidden' name='parent_comment_id2' value='{$row['parent_comment_id']}'>";
                         echo "<button type='submit' name='delete' style='color: white; background-color: red; border: none; padding: 5px 10px;'>Delete Reply</button>";
                         echo "</form>";
+
+                        $escapedCommentContent = htmlspecialchars($row['reply_content'], ENT_QUOTES, 'UTF-8');
+                        echo "<button onclick='openModal2({$row['reply_id']}, \"" . addslashes($escapedCommentContent) . "\", {$row['tweet_id']})' style='color: white; background-color: orange; border: none; padding: 5px 10px;'>Edit</button>";
                     }
                     echo "</div>";
                 }

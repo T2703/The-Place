@@ -172,7 +172,7 @@
 
                     // Show delete button for post owner
                     if ($userId == $row['tweet_owner_id']) {
-                        echo "<form method='post' action='deleteHandler.php' style='display:inline;'>";
+                        echo "<form method='post' action='Handlers/deleteTweetHandler.php' style='display:inline;'>";
                         echo "<input type='hidden' name='type' value='post'>";
                         echo "<input type='hidden' name='id' value='{$row['tweet_id']}'>";
                         echo "<button type='submit' style='color: white; background-color: red; border: none; padding: 5px 10px;'>Delete Post</button>";

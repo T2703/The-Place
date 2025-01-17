@@ -60,7 +60,7 @@
             echo "</form>";
 
             // Delete button 
-            echo "<form method='post' action='deleteTweet.php' style='margin-top: 10px;'>";
+            echo "<form method='post' action='Handlers/deleteTweetHandler.php' style='margin-top: 10px;'>";
             echo "<input type='hidden' name='tweet_id' value='{$row['id']}'>"; // Pass the tweet ID into the script
             echo "<button type='submit' name='delete' style='color: white; background-color: red; border: none; padding: 5px 10px; cursor: pointer;'>Delete</button>";
             echo "</form>";

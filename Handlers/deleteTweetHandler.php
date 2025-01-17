@@ -1,5 +1,5 @@
 <?php
-    include("database.php");
+    include("../database.php");
     session_start();
 
     // Check if the user is logged in
@@ -45,6 +45,6 @@
     mysqli_close($connection);
 
     // Redirect back to the profile page
-    header("Location: profile.php");
+    header("Location: ../profile.php");
     exit;
 ?>
