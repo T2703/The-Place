@@ -20,6 +20,7 @@
         <input type="password" name="password" required><br>
 
         <input type="submit" name="submit" value="login"><br> 
+        <a href="index.php">Don't have an account? Register here.</a>
     </form>
 </body>
 </html>
