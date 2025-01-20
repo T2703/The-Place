@@ -210,6 +210,18 @@
                     echo "<p>{$row['reply_content']}</p>";
                     echo "<p><em>Replied on: {$row['reply_created_at']}</em></p>";
 
+                    // Like button 
+                    echo "<form method='post' action='Handlers/commentLikeHandler.php' style='margin-top: 10px;'>";
+                    echo "<input type='hidden' name='commenet_like_id' value='{$row['reply_id']}'>";
+                    echo "<button type='submit' name='like' style='color: white; background-color: green; border: none; padding: 5px 10px; cursor: pointer;'>Like</button>";
+                    echo "</form>";
+
+                    // Dislike button 
+                    echo "<form method='post' action='Handlers/commentDislikeHandler.php' style='margin-top: 10px;'>";
+                    echo "<input type='hidden' name='comment_dislike_id' value='{$row['reply_id']}'>";
+                    echo "<button type='submit' name='dislike' style='color: white; background-color: red; border: none; padding: 5px 10px; cursor: pointer;'>Dislike</button>";
+                    echo "</form>";
+
                     // Show delete button for replies if owned by the logged-in user
                     if ($userId == $row['reply_owner_id']) {
                         echo "<form method='post' action='Handlers/replyDeleteHandler.php' style='display:inline;'>";
