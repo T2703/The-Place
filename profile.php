@@ -92,7 +92,18 @@
 
 
     // Get the user's information
-    $sql = "SELECT id, username, email, reg_date FROM users WHERE id = ?";
+    $sql = "
+    SELECT 
+        u.id, 
+        u.username, 
+        u.email, 
+        u.reg_date,
+        (SELECT COUNT(*) FROM tweets WHERE tweets.user_id = u.id) AS post_count
+    FROM 
+        users u 
+    WHERE 
+        u.id = ?";
+        
     $stmt = mysqli_prepare($connection, $sql);
     mysqli_stmt_bind_param($stmt, "i", $userId);
     mysqli_stmt_execute($stmt);
@@ -103,6 +114,7 @@
         echo "<div style='border: 1px solid #ccc; padding: 10px; margin-bottom: 20px;'>";
         echo "<p><strong>Username:</strong> {$row['username']}</p>";
         echo "<p><strong>Email:</strong> {$row['email']}</p>";
+        echo "<p><strong>Posts:</strong> <a href='profilePosts.php' style='color: blue; text-decoration: none;'>{$row['post_count']}</a></p>";
         echo "<p><strong>Member Since:</strong> " . date("F d, Y", strtotime($row['reg_date'])) . "</p>";
         echo "</div>";
         echo "<button onclick='openModal(\"{$row['id']}\", \"{$row['email']}\")' style='color: white; background-color: blue; border: none; padding: 5px 10px;'>Delete</button>";
