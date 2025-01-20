@@ -22,6 +22,7 @@
         <input type="password" name="password" required><br>
 
         <input type="submit" name="submit" value="register"><br> 
+        <a href="login.php">Have an account? Login here.</a>
     </form>
 </body>
 </html>
