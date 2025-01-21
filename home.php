@@ -13,7 +13,11 @@
 </head>
 <body>
     What's on your mind today? <br>
-    <form action="<?php htmlspecialchars($_SERVER["PHP_SELF"])?>" method="post">
+    <form method="get" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" style="margin-bottom: 20px;">
+        <input type="text" name="search" placeholder="Search posts by title..." style="padding: 5px; width: 300px;">
+        <button type="submit" style="padding: 5px 10px; background-color: blue; color: white; border: none; cursor: pointer;">Search</button>
+    </form>
+    <form method="post" action="<?php htmlspecialchars($_SERVER["PHP_SELF"])?>">
         <input type="submit" name="logout" value="logout">
     </form>
 </body>
@@ -27,6 +31,9 @@
     }
 
     $userId = $_SESSION['user_id'];
+
+    $search = isset($_GET['search']) ? trim($_GET['search']) : '';
+
     // Get the tweets from the specified user. 
     $sql = "SELECT 
             tweets.id, 
@@ -38,10 +45,25 @@
             (SELECT COUNT(*) FROM tweet_dislikes WHERE tweet_dislikes.tweet_id = tweets.id) AS dislike_count,
             (SELECT COUNT(*) FROM comments WHERE comments.tweet_id = tweets.id) AS comments_count
             FROM tweets 
-            JOIN users ON tweets.user_id = users.id
-            ORDER BY tweets.created_at DESC";
+            JOIN users ON tweets.user_id = users.id";
+    
+    // Append search condition if a search query is provided
+    if (!empty($search)) {
+        $sql .= " WHERE tweets.title LIKE ?";
+    }
 
-    $result = mysqli_query($connection, $sql);
+    $sql .= " ORDER BY tweets.created_at DESC";
+
+    $stmt = mysqli_prepare($connection, $sql);
+    
+    // Bind the search parameter if applicable
+    if (!empty($search)) {
+        $searchParam = '%' . $search . '%';
+        mysqli_stmt_bind_param($stmt, "s", $searchParam);
+    }
+
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
 
     // Fetching each tweet from the database. 
     while ($row = mysqli_fetch_assoc($result)) {
