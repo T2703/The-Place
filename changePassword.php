@@ -97,18 +97,13 @@
     $result = mysqli_stmt_get_result($stmt);
     
     if ($row = mysqli_fetch_assoc($result)) {
-        // Profile info 
-        echo "<h1>Update Profile</h1>";
-        echo "<form method='post' action='Handlers/profileUpdateHandler.php'>";
-        echo "<label>Username:</label>";
-        echo "<input type='text' name='username' value='{$row['username']}' required><br>";
-        echo "<label>Email:</label>";
-        echo "<input type='email' name='email' value='{$row['email']}' required><br>";
-        echo "<button type='submit' style='margin-top: 10px; background-color: blue; color: white; padding: 10px 20px; border: none;'>Save</button>";
+        // Password Form
+        echo "<h1>Change Password</h1>";
+        echo "<form method='post' action='Handlers/passwordUpdateHandler.php'>";
+        echo "<label>New Password:</label>";
+        echo "<input type='password' name='new_password' required><br>";
+        echo "<button type='submit'  name='submit' style='margin-top: 10px; background-color: blue; color: white; padding: 10px 20px; border: none;'>Save</button>";
         echo "</form>";
-
-        // Change password
-        echo "<button onclick='openModal(\"{$row['id']}\", \"{$row['email']}\")' style='color: white; background-color: blue; border: none; padding: 5px 10px;'>Change Password</button>";
     }
     else {
         echo "Unable to fetch profile details.";
