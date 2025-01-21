@@ -97,6 +97,6 @@
     mysqli_close($connection);
 
     // Redirect back to the profile page
-    //header("Location: ../home.php");
+    header("Location: ../home.php");
     exit;
 ?>

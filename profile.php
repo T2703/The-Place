@@ -117,7 +117,18 @@
         echo "<p><strong>Posts:</strong> <a href='profilePosts.php' style='color: blue; text-decoration: none;'>{$row['post_count']}</a></p>";
         echo "<p><strong>Member Since:</strong> " . date("F d, Y", strtotime($row['reg_date'])) . "</p>";
         echo "</div>";
-        echo "<button onclick='openModal(\"{$row['id']}\", \"{$row['email']}\")' style='color: white; background-color: blue; border: none; padding: 5px 10px;'>Delete</button>";
+
+        // Show buttons if it's their own account
+        if ($userId == $row['id']) {
+            // Delete
+            echo "<button onclick='openModal(\"{$row['id']}\", \"{$row['email']}\")' style='color: white; background-color: blue; border: none; padding: 5px 10px;'>Delete</button>";
+
+            // Update 
+            echo "<form method='get' action='profileUpdate.php' style='margin-top: 10px;'>";
+            echo "<button type='submit' style='color: white; background-color: green; border: none; padding: 5px 10px; cursor: pointer;'>Update</button>";
+            echo "</form>";
+        }
+        
     } else {
         echo "<p>Unable to fetch your profile details.</p>";
     }
