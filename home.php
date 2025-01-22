@@ -17,7 +17,7 @@
         <input type="text" name="search" placeholder="Search posts by title..." style="padding: 5px; width: 300px;">
         <button type="submit" style="padding: 5px 10px; background-color: blue; color: white; border: none; cursor: pointer;">Search</button>
     </form>
-    <form method="post" action="<?php htmlspecialchars($_SERVER["PHP_SELF"])?>">
+    <form method="post" action="login.php">
         <input type="submit" name="logout" value="logout">
     </form>
 </body>

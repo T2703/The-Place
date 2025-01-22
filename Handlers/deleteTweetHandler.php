@@ -17,7 +17,13 @@
 
         if (!empty($tweetId)) {
             // Prepare the delete query
-            $sql = "DELETE FROM tweets WHERE id = ? AND user_id = ?";
+            $sql = "
+                DELETE tweets, tweet_likes, tweet_dislikes, comments
+                FROM tweets
+                LEFT JOIN tweet_likes ON tweets.id = tweet_likes.tweet_id
+                LEFT JOIN tweet_dislikes ON tweets.id = tweet_dislikes.tweet_id
+                LEFT JOIN comments ON tweets.id = comments.tweet_id
+                WHERE tweets.id = ? AND tweets.user_id = ?";
 
             $stmt = mysqli_prepare($connection, $sql);
 
