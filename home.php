@@ -40,6 +40,7 @@
             tweets.title, 
             tweets.content, 
             tweets.created_at, 
+            users.id as user_id,
             users.username,
             (SELECT COUNT(*) FROM tweet_likes WHERE tweet_likes.tweet_id = tweets.id) AS like_count,
             (SELECT COUNT(*) FROM tweet_dislikes WHERE tweet_dislikes.tweet_id = tweets.id) AS dislike_count,
@@ -68,7 +69,7 @@
     // Fetching each tweet from the database. 
     while ($row = mysqli_fetch_assoc($result)) {
         echo "<div style='border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;'>";
-        echo "<p><strong>{$row['username']}</strong></p>";
+        echo "<p><a href='profile.php?user_id={$row['user_id']}' style='color: blue; text-decoration: none;'>{$row['username']}</a></p>";
         echo "<p><strong>Title:</strong> {$row['title']}</p>";
         echo "<p>{$row['content']}</p>";
         echo "<p><em>Posted on {$row['created_at']}</em></p>";

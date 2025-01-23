@@ -88,51 +88,59 @@
         exit;
     } 
         
-    $userId = $_SESSION['user_id'];
+    $loggedInUserId = $_SESSION['user_id'];
 
+    // Get the user id and sanitize.
+    if (isset($_GET['user_id'])) {
+        $userId = intval($_GET['user_id']);
 
-    // Get the user's information
-    $sql = "
-    SELECT 
-        u.id, 
-        u.username, 
-        u.email, 
-        u.reg_date,
-        (SELECT COUNT(*) FROM tweets WHERE tweets.user_id = u.id) AS post_count,
-        (SELECT COUNT(*) FROM tweet_likes WHERE tweet_likes.user_id = u.id) AS liked_post_count
-    FROM 
-        users u 
-    WHERE 
-        u.id = ?";
-        
-    $stmt = mysqli_prepare($connection, $sql);
-    mysqli_stmt_bind_param($stmt, "i", $userId);
-    mysqli_stmt_execute($stmt);
-    $result = mysqli_stmt_get_result($stmt);
+        // Get the user's information
+        $sql = "
+        SELECT 
+            u.id, 
+            u.username, 
+            u.email, 
+            u.reg_date,
+            (SELECT COUNT(*) FROM tweets WHERE tweets.user_id = u.id) AS post_count,
+            (SELECT COUNT(*) FROM tweet_likes WHERE tweet_likes.user_id = u.id) AS liked_post_count
+        FROM 
+            users u 
+        WHERE 
+            u.id = ?";
+            
+        $stmt = mysqli_prepare($connection, $sql);
+        mysqli_stmt_bind_param($stmt, "i", $userId);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
 
-    // Check if the user exists and fetch the data
-    if ($row = mysqli_fetch_assoc($result)) {
-        echo "<div style='border: 1px solid #ccc; padding: 10px; margin-bottom: 20px;'>";
-        echo "<p><strong>Username:</strong> {$row['username']}</p>";
-        echo "<p><strong>Email:</strong> {$row['email']}</p>";
-        echo "<p><strong>Posts:</strong> <a href='profilePosts.php' style='color: blue; text-decoration: none;'>{$row['post_count']}</a></p>";
-        echo "<p><strong>Likes:</strong> <a href='viewlikes.php' style='color: blue; text-decoration: none;'>{$row['liked_post_count']}</a></p>";
-        echo "<p><strong>Member Since:</strong> " . date("F d, Y", strtotime($row['reg_date'])) . "</p>";
-        echo "</div>";
+        // Check if the user exists and fetch the data
+        if ($row = mysqli_fetch_assoc($result)) {
+            echo "<div style='border: 1px solid #ccc; padding: 10px; margin-bottom: 20px;'>";
+            echo "<p><strong>Username:</strong> {$row['username']}</p>";
+            echo "<p><strong>Email:</strong> {$row['email']}</p>";
+            echo "<p><strong>Posts:</strong> <a href='profilePosts.php' style='color: blue; text-decoration: none;'>{$row['post_count']}</a></p>";
+            echo "<p><strong>Likes:</strong> <a href='viewlikes.php' style='color: blue; text-decoration: none;'>{$row['liked_post_count']}</a></p>";
+            echo "<p><strong>Member Since:</strong> " . date("F d, Y", strtotime($row['reg_date'])) . "</p>";
+            echo "</div>";
 
-        // Show buttons if it's their own account
-        if ($userId == $row['id']) {
-            // Delete
-            echo "<button onclick='openModal(\"{$row['id']}\", \"{$row['email']}\")' style='color: white; background-color: blue; border: none; padding: 5px 10px;'>Delete</button>";
+            // Show buttons if it's their own account
+            if ($loggedInUserId == $row['id']) {
+                // Delete
+                echo "<button onclick='openModal(\"{$row['id']}\", \"{$row['email']}\")' style='color: white; background-color: blue; border: none; padding: 5px 10px;'>Delete</button>";
 
-            // Update 
-            echo "<form method='get' action='profileUpdate.php' style='margin-top: 10px;'>";
-            echo "<button type='submit' style='color: white; background-color: green; border: none; padding: 5px 10px; cursor: pointer;'>Update</button>";
-            echo "</form>";
+                // Update 
+                echo "<form method='get' action='profileUpdate.php' style='margin-top: 10px;'>";
+                echo "<button type='submit' style='color: white; background-color: green; border: none; padding: 5px 10px; cursor: pointer;'>Update</button>";
+                echo "</form>";
+            }
+            
+        } else {
+            echo "<p>Unable to fetch your profile details.</p>";
         }
-        
-    } else {
-        echo "<p>Unable to fetch your profile details.</p>";
+    } 
+    else {
+        echo "Can't find user.";
+        exit;
     }
 
     // Close the statement and database connection
