@@ -1,7 +1,10 @@
 <?php
     include("database.php");
     include("navbar.php");
-    session_start();
+
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
 ?>
 
 <!DOCTYPE html>
@@ -113,6 +116,15 @@
         mysqli_stmt_execute($stmt);
         $result = mysqli_stmt_get_result($stmt);
 
+        // Follow operations & code
+        $sqlCheckFollow = "SELECT * FROM follows WHERE follower_id = ? AND following_id = ?";
+        $followStmt = mysqli_prepare($connection, $sqlCheckFollow);
+        mysqli_stmt_bind_param($followStmt, "ii", $loggedInUserId, $userId);
+        mysqli_stmt_execute($followStmt);
+        $followResult = mysqli_stmt_get_result($followStmt);
+        $isFollowing = mysqli_num_rows($followResult) > 0;
+        mysqli_stmt_close($followStmt);
+
         // Check if the user exists and fetch the data
         if ($row = mysqli_fetch_assoc($result)) {
             echo "<div style='border: 1px solid #ccc; padding: 10px; margin-bottom: 20px;'>";
@@ -133,8 +145,27 @@
                 echo "<button type='submit' style='color: white; background-color: green; border: none; padding: 5px 10px; cursor: pointer;'>Update</button>";
                 echo "</form>";
             }
+            // Show the follow button if not.
+            else {
+                // Display the appropriate button
+                if ($isFollowing) {
+                    // Unfollow
+                    echo "<form method='post' action='Handlers/followHandler.php'>";
+                    echo "<input type='hidden' name='following_id' value='{$userId}'>";
+                    echo "<button type='submit' name='unfollow' style='background-color: red; color: white;'>Unfollow</button>";
+                    echo "</form>";
+                } 
+                else {
+                    // Follow
+                    echo "<form method='post' action='Handlers/followHandler.php'>";
+                    echo "<input type='hidden' name='following_id' value='{$userId}'>";
+                    echo "<button type='submit' name='follow' style='background-color: green; color: white;'>Follow</button>";
+                    echo "</form>";
+                }
+            }
             
-        } else {
+        } 
+        else {
             echo "<p>Unable to fetch your profile details.</p>";
         }
     } 
