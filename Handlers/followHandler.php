@@ -45,6 +45,27 @@
 
             mysqli_stmt_close($stmt);
         }
+        else if (isset($_POST['unfollow'])) {
+            $deleteFollowsSql = "DELETE FROM follows WHERE follower_id = ? AND following_id = ?";
+            $deleteFollowsStmt = mysqli_prepare($connection, $deleteFollowsSql);
+            mysqli_stmt_bind_param($deleteFollowsStmt, "ii", $loggedInUserId, $followingId);
+            mysqli_stmt_execute($deleteFollowsStmt);
+            mysqli_stmt_close($deleteFollowsStmt);
+
+            // Decrement the 'follows' count for the logged-in user
+            $incrementFollowsSql = "UPDATE users SET following = following - 1 WHERE id = ?";
+            $incrementFollowsStmt = mysqli_prepare($connection, $incrementFollowsSql);
+            mysqli_stmt_bind_param($incrementFollowsStmt, "i", $loggedInUserId);
+            mysqli_stmt_execute($incrementFollowsStmt);
+            mysqli_stmt_close($incrementFollowsStmt);
+
+            // Decrement the 'followers' count for the followed user
+            $incrementFollowersSql = "UPDATE users SET followers = followers - 1 WHERE id = ?";
+            $incrementFollowersStmt = mysqli_prepare($connection, $incrementFollowersSql);
+            mysqli_stmt_bind_param($incrementFollowersStmt, "i", $followingId);
+            mysqli_stmt_execute($incrementFollowersStmt);
+            mysqli_stmt_close($incrementFollowersStmt);
+        }
     }
 
     mysqli_close($connection);
