@@ -105,7 +105,9 @@
             u.email, 
             u.reg_date,
             (SELECT COUNT(*) FROM tweets WHERE tweets.user_id = u.id) AS post_count,
-            (SELECT COUNT(*) FROM tweet_likes WHERE tweet_likes.user_id = u.id) AS liked_post_count
+            (SELECT COUNT(*) FROM tweet_likes WHERE tweet_likes.user_id = u.id) AS liked_post_count,
+            (SELECT COUNT(*) FROM follows WHERE follows.following_id = u.id) AS follower_count,
+            (SELECT COUNT(*) FROM follows WHERE follows.follower_id = u.id) AS following_count
         FROM 
             users u 
         WHERE 
@@ -134,6 +136,9 @@
             echo "<p><strong>Likes:</strong> <a href='viewlikes.php' style='color: blue; text-decoration: none;'>{$row['liked_post_count']}</a></p>";
             echo "<p><strong>Member Since:</strong> " . date("F d, Y", strtotime($row['reg_date'])) . "</p>";
             echo "</div>";
+
+            echo "<p>Followers: {$row['follower_count']}</p>";
+            echo "<p>Following: {$row['following_count']}</p>";
 
             // Show buttons if it's their own account
             if ($loggedInUserId == $row['id']) {
