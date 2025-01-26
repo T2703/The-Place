@@ -127,6 +127,21 @@
         $isFollowing = mysqli_num_rows($followResult) > 0;
         mysqli_stmt_close($followStmt);
 
+        // Block operations & code
+        $sqlCheckBlock = "SELECT * FROM blocks WHERE blocker_id = ? AND blocked_id = ?";
+        $blockStmt = mysqli_prepare($connection, $sqlCheckBlock);
+        mysqli_stmt_bind_param($blockStmt, "ii", $loggedInUserId, $userId);
+        mysqli_stmt_execute($blockStmt);
+        $blockResult = mysqli_stmt_get_result($blockStmt);
+        $isBlocked = mysqli_num_rows($blockResult) > 0;
+        mysqli_stmt_close($blockStmt);
+
+        // First checked if they are blocked
+        if ($isBlocked) {
+            echo "This user is blocked.";
+            exit;
+        }
+
         // Check if the user exists and fetch the data
         if ($row = mysqli_fetch_assoc($result)) {
             echo "<div style='border: 1px solid #ccc; padding: 10px; margin-bottom: 20px;'>";
@@ -165,6 +180,12 @@
                     echo "<form method='post' action='Handlers/followHandler.php'>";
                     echo "<input type='hidden' name='following_id' value='{$userId}'>";
                     echo "<button type='submit' name='follow' style='background-color: green; color: white;'>Follow</button>";
+                    echo "</form>";
+
+                    // Block
+                    echo "<form method='post' action='Handlers/blockHandler.php'>";
+                    echo "<input type='hidden' name='block_id' value='{$userId}'>";
+                    echo "<button type='submit' name='block' style='background-color: green; color: white;'>block</button>";
                     echo "</form>";
                 }
             }
