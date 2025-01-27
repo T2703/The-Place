@@ -15,7 +15,7 @@
     <title>Document</title>
 </head>
 <body>
-    Your likes <br>
+    Your blocks <br>
 </body>
 </html>
 
@@ -25,42 +25,43 @@
         echo "You need to log in to post";
         exit;
     }
-    else {
-        $userId = $_SESSION['user_id'];
-    }
 
-    // Get the tweets likes from the logged in user. 
-    $sql = "SELECT tweets.id, tweets.content, tweets.title, tweets.created_at, users.username 
-            FROM tweet_likes
-            JOIN tweets ON tweet_likes.tweet_id = tweets.id
-            JOIN users ON tweets.user_id = users.id
-            WHERE tweet_likes.user_id = ?
-            ORDER BY tweets.created_at DESC";
+    $userId = $_SESSION['user_id'];
+
+
+    // Get the block users from the logged in user. 
+    $sql = "
+    SELECT 
+        blocks.id AS block_id,
+        users.username AS blocked_username
+    FROM blocks
+    JOIN users ON users.id = blocks.blocked_id
+    WHERE blocks.blocker_id = ?
+    UNION
+    SELECT 
+        blocks.id AS block_id,
+        users.username AS blocker_username
+    FROM blocks
+    JOIN users ON users.id = blocks.blocker_id
+    WHERE blocks.blocked_id = ?
+    ";
     
     // Needed for filtering the data (i is for injection we to prevent that)
     $stmt = mysqli_prepare($connection, $sql);
-    mysqli_stmt_bind_param($stmt, "i", $userId);
+    mysqli_stmt_bind_param($stmt, "ii", $userId, $userId);
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
 
-    // Check if there is any tweets
+    // Check if there are blocked users
     if (mysqli_num_rows($result) > 0) {
-        echo "Your posts";
-
-        // Fetching each tweet from the database. 
+        echo "<p>The following users are blocked or have blocked you:</p>";
         while ($row = mysqli_fetch_assoc($result)) {
-            // Tweet information 
             echo "<div style='border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;'>";
-            echo "<p><strong>{$row['username']}</strong></p>";
-            echo "<p><strong>Title:</strong> {$row['title']}</p>";
-            echo "<p>{$row['content']}</p>";
-            echo "<p><em>Posted on {$row['created_at']}</em></p>";
+            echo "<p><strong>Username:</strong> {$row['blocked_username']}</p>";
             echo "</div>";
-
         }
-    }
-    else {
-        echo "<p>You haven't liked anything yet.</p>";
+    } else {
+        echo "<p>No blocked users found.</p>";
     }
 
     // Close the database connection
