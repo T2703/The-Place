@@ -49,11 +49,20 @@
             (SELECT COUNT(*) FROM tweet_dislikes WHERE tweet_dislikes.tweet_id = tweets.id) AS dislike_count,
             (SELECT COUNT(*) FROM comments WHERE comments.tweet_id = tweets.id) AS comments_count
             FROM tweets 
-            JOIN users ON tweets.user_id = users.id";
+            JOIN users ON tweets.user_id = users.id
+            WHERE
+                users.id NOT IN (
+                    SELECT blocked_id FROM blocks WHERE blocker_id = ?
+                ) 
+                AND users.id NOT IN (
+                    SELECT blocker_id FROM blocks WHERE blocked_id = ?
+                )
+            ";   
+                    
     
     // Append search condition if a search query is provided
     if (!empty($search)) {
-        $sql .= " WHERE tweets.title LIKE ?";
+        $sql .= " AND tweets.title LIKE ?";
     }
 
     $sql .= " ORDER BY tweets.created_at DESC";
@@ -63,7 +72,10 @@
     // Bind the search parameter if applicable
     if (!empty($search)) {
         $searchParam = '%' . $search . '%';
-        mysqli_stmt_bind_param($stmt, "s", $searchParam);
+        mysqli_stmt_bind_param($stmt, "iis", $userId, $userId, $searchParam);
+    }
+    else {
+        mysqli_stmt_bind_param($stmt, "ii", $userId, $userId);
     }
 
     mysqli_stmt_execute($stmt);
