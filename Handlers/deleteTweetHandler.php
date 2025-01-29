@@ -32,12 +32,14 @@
                 mysqli_stmt_bind_param($stmt, "ii", $tweetId, $_SESSION['user_id']);
 
                 // Execute the statement
-                if (mysqli_stmt_execute($stmt)) {
+                try {
+                    mysqli_stmt_execute($stmt);
                     echo "Tweet deleted successfully.";
-                } else {
+                }
+                catch (mysqli_sql_exception) {
                     echo "Failed to delete tweet. Please try again.";
                 }
-
+                
                 mysqli_stmt_close($stmt);
             } else {
                 echo "Error preparing query: " . mysqli_error($connection);

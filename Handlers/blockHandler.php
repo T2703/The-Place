@@ -24,8 +24,16 @@
 
             echo "You have been blocked";
         }
+        // Or unblock
+        else if (isset($_POST['unblock'])) {
+            $sql = "DELETE FROM blocks WHERE blocker_id = ? AND blocker_id = ?";
+            $stmt = mysqli_prepare($connection, $sql);
+            mysqli_stmt_bind_param($stmt, "ii", $loggedInUserId, $blockId);
+            mysqli_stmt_execute($stmt);
+            mysqli_stmt_close($stmt);
+        }
         else {
-            echo "Block failed";
+            echo "Block or unblock failed";
         }
         
 

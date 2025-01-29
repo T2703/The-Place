@@ -59,6 +59,12 @@
             echo "<div style='border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;'>";
             echo "<p><strong>Username:</strong> {$row['blocked_username']}</p>";
             echo "</div>";
+
+            // Unblock
+            echo "<form method='post' action='Handlers/blockHandler.php'>";
+            echo "<input type='hidden' name='block_id' value='{$userId}'>";
+            echo "<button type='submit' name='unblock' style='background-color: red; color: white;'>Unfollow</button>";
+            echo "</form>";
         }
     } else {
         echo "<p>No blocked users found.</p>";
