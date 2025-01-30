@@ -103,6 +103,7 @@
             u.id, 
             u.username, 
             u.email, 
+            u.pfp,
             u.reg_date,
             (SELECT COUNT(*) FROM tweets WHERE tweets.user_id = u.id) AS post_count,
             (SELECT COUNT(*) FROM tweet_likes WHERE tweet_likes.user_id = u.id) AS liked_post_count,
@@ -151,6 +152,14 @@
             echo "<p><strong>Likes:</strong> <a href='viewlikes.php' style='color: blue; text-decoration: none;'>{$row['liked_post_count']}</a></p>";
             echo "<p><strong>Member Since:</strong> " . date("F d, Y", strtotime($row['reg_date'])) . "</p>";
             echo "</div>";
+
+            // Profile pic
+            if (!empty($row['pfp'])) {
+                echo '<img src="Handlers/displayPFPHandler.php?user_id=' . $row['id'] . '" width="150" height="150" style="border-radius: 100%;">';
+            }
+            else {
+                echo "<p>No profile picture uploaded.</p>";
+            }
 
             echo "<p>Followers: {$row['follower_count']}</p>";
             echo "<p>Following: {$row['following_count']}</p>";

@@ -109,6 +109,13 @@
 
         // Change password
         echo "<button onclick='openModal(\"{$row['id']}\", \"{$row['email']}\")' style='color: white; background-color: blue; border: none; padding: 5px 10px;'>Change Password</button>";
+
+        // Profile Upload
+        echo "<form action='Handlers/uploadPFPHandler.php' method='post' enctype='multipart/form-data'>";
+        echo "<label for='profile_pic'>Upload Profile Picture:</label>";
+        echo "<input type='file' name='profile_pic' accept='image/jpeg' required>";
+        echo "<button type='submit' name='upload'>Upload</button>";
+        echo "</form>";
     }
     else {
         echo "Unable to fetch profile details.";

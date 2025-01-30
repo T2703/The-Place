@@ -1,7 +1,10 @@
 <?php
     include("database.php");
     include("navbar.php");
-    session_start();
+    
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
 ?>
 
 <!DOCTYPE html>

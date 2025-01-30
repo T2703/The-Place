@@ -45,6 +45,7 @@
             tweets.created_at, 
             users.id as user_id,
             users.username,
+            users.pfp,
             (SELECT COUNT(*) FROM tweet_likes WHERE tweet_likes.tweet_id = tweets.id) AS like_count,
             (SELECT COUNT(*) FROM tweet_dislikes WHERE tweet_dislikes.tweet_id = tweets.id) AS dislike_count,
             (SELECT COUNT(*) FROM comments WHERE comments.tweet_id = tweets.id) AS comments_count
@@ -90,6 +91,14 @@
         echo "<p><em>Posted on {$row['created_at']}</em></p>";
         echo "<p><strong>Likes:</strong> {$row['like_count']} | <strong>Dislikes:</strong> {$row['dislike_count']}</p> <strong>Comments:</strong> {$row['comments_count']}</p>";
         echo "</div>";
+
+        // Profile pic
+        if (!empty($row['pfp'])) {
+            echo '<img src="Handlers/displayPFPHandler.php?user_id=' . $row['user_id'] . '" width="150" height="150" style="border-radius: 100%;">';
+        }
+        else {
+            echo "<p>No profile picture uploaded.</p>";
+        }
         
         // Like button 
         echo "<form method='post' action='Handlers/likeHandler.php' style='margin-top: 10px;'>";
