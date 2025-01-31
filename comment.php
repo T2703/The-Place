@@ -1,7 +1,10 @@
 <?php
     include("database.php");
     include("navbar.php");
-    session_start();
+    
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
 ?>
 
 <!DOCTYPE html>
@@ -175,7 +178,7 @@
                         echo "<form method='post' action='Handlers/deleteTweetHandler.php' style='display:inline;'>";
                         echo "<input type='hidden' name='type' value='post'>";
                         echo "<input type='hidden' name='id' value='{$row['tweet_id']}'>";
-                        echo "<button type='submit' style='color: white; background-color: red; border: none; padding: 5px 10px;'>Delete Post</button>";
+                        echo "<button type='submit' name='delete' style='color: white; background-color: red; border: none; padding: 5px 10px;'>Delete Post</button>";
                         echo "</form>";
                     }
 

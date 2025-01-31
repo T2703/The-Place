@@ -16,13 +16,15 @@
 </head>
 <body>
     Create post <br>
-    <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+    <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype='multipart/form-data'>
         <label for="title">Title:</label><br>
         <input type="text" id="title" name="title" placeholder="Title here..." maxlength="255" required> <br>
 
         <label for="tweet">Post:</label><br>
         <textarea id="tweet" name="tweet" placeholder="Write something..." style="height:200px" required></textarea><br>
-
+        
+        <label for='image'>Upload Image:</label>
+        <input type='file' name='image' accept='image/jpeg'>
         <input type="submit" name="submit" value="Tweet"><br> 
     </form>
 </body>
@@ -42,18 +44,27 @@
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $title = filter_input(INPUT_POST, "title", FILTER_SANITIZE_SPECIAL_CHARS);
         $tweet = filter_input(INPUT_POST, "tweet", FILTER_SANITIZE_SPECIAL_CHARS);
+        $imageData = null; 
 
+        // Get image data
+        if (!empty($_FILES["image"]["tmp_name"])) {
+            $imageTmp = $_FILES["image"]["tmp_name"];
+            $imageData = file_get_contents($imageTmp); // Read binary data
+        }
+ 
         if (!empty($title) && !empty($tweet)) {
-            $sqlTweet = "INSERT INTO tweets (user_id, title, content)
-                         VALUES ('$userId', '$title', '$tweet')";
+            $sqlTweet = "INSERT INTO tweets (user_id, title, content, images) VALUES (?, ?, ?, ?)";
+            $stmtTweet = mysqli_prepare($connection, $sqlTweet);
+            mysqli_stmt_bind_param($stmt, "isss", $userId, $title, $tweet, $imageData);
 
             try {
                 mysqli_query($connection, $sqlTweet);
                 echo "You have posted!";
             }
-            catch (mysqli_sql_exception) {
-                echo "Uh oh bad request";
+            catch (mysqli_sql_exception $e) {
+                echo "Uh oh bad request", $e;
             }
+            mysqli_close($connection);
         }
     }
     mysqli_close($connection);
