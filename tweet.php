@@ -51,20 +51,26 @@
             $imageTmp = $_FILES["image"]["tmp_name"];
             $imageData = file_get_contents($imageTmp); // Read binary data
         }
+        else {
+            $imageData = "";
+        }
  
         if (!empty($title) && !empty($tweet)) {
             $sqlTweet = "INSERT INTO tweets (user_id, title, content, images) VALUES (?, ?, ?, ?)";
             $stmtTweet = mysqli_prepare($connection, $sqlTweet);
-            mysqli_stmt_bind_param($stmt, "isss", $userId, $title, $tweet, $imageData);
 
-            try {
-                mysqli_query($connection, $sqlTweet);
-                echo "You have posted!";
+            if ($stmtTweet) {
+                mysqli_stmt_bind_param($stmtTweet, "isss", $userId, $title, $tweet, $imageData);
+                try {
+                    mysqli_stmt_execute($stmtTweet);
+                    echo "You have posted!";
+                } catch (mysqli_sql_exception $e) {
+                    echo "Uh oh bad request: " . $e->getMessage();
+                }
+                mysqli_stmt_close($stmtTweet);
+            } else {
+                echo "Failed to prepare the statement.";
             }
-            catch (mysqli_sql_exception $e) {
-                echo "Uh oh bad request", $e;
-            }
-            mysqli_close($connection);
         }
     }
     mysqli_close($connection);

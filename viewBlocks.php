@@ -31,21 +31,27 @@
 
     // Get the block users from the logged in user. 
     $sql = "
-    SELECT 
-        blocks.id AS block_id,
-        users.username AS blocked_username
-    FROM blocks
-    JOIN users ON users.id = blocks.blocked_id
-    WHERE blocks.blocker_id = ?
-    UNION
-    SELECT 
-        blocks.id AS block_id,
-        users.username AS blocker_username
-    FROM blocks
-    JOIN users ON users.id = blocks.blocker_id
-    WHERE blocks.blocked_id = ?
+        SELECT 
+            blocks.id AS block_id,
+            blocks.blocker_id AS user_who_blocked,
+            blocks.blocked_id AS user_who_got_blocked,
+            users.username AS blocked_username
+        FROM blocks
+        JOIN users ON users.id = blocks.blocked_id
+        WHERE blocks.blocker_id = ?
+
+        UNION
+
+        SELECT 
+            blocks.id AS block_id,
+            blocks.blocked_id AS user_who_blocked,
+            blocks.blocker_id AS user_who_got_blocked,
+            users.username AS blocked_username
+        FROM blocks
+        JOIN users ON users.id = blocks.blocker_id
+        WHERE blocks.blocked_id = ?
     ";
-    
+        
     // Needed for filtering the data (i is for injection we to prevent that)
     $stmt = mysqli_prepare($connection, $sql);
     mysqli_stmt_bind_param($stmt, "ii", $userId, $userId);
@@ -61,10 +67,13 @@
             echo "</div>";
 
             // Unblock
-            echo "<form method='post' action='Handlers/blockHandler.php'>";
-            echo "<input type='hidden' name='block_id' value='{$userId}'>";
-            echo "<button type='submit' name='unblock' style='background-color: red; color: white;'>Unfollow</button>";
-            echo "</form>";
+            if ($userId == $row['user_who_got_blocked']) {
+                echo "<form method='post' action='Handlers/blockHandler.php'>";
+                echo "<input type='hidden' name='block_id' value='{$userId}'>";
+                echo "<button type='submit' name='unblock' style='background-color: red; color: white;'>Unfollow</button>";
+                echo "</form>";
+            }
+
         }
     } else {
         echo "<p>No blocked users found.</p>";
