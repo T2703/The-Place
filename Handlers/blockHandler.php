@@ -18,25 +18,38 @@
         // Block the user.
         if (isset($_POST['block'])) {
             $sql = "INSERT INTO blocks (blocker_id, blocked_id) VALUES (?, ?)";
+
             $stmt = mysqli_prepare($connection, $sql);
             mysqli_stmt_bind_param($stmt, "ii", $loggedInUserId, $blockId);
             mysqli_stmt_execute($stmt);
+
+            // Delete relations next (cause block duh)
+            $deleteRelations = [
+                "DELETE FROM tweet_likes WHERE user_id = ?", 
+                "DELETE FROM tweet_dislikes WHERE user_id = ?", 
+                "DELETE FROM follows WHERE follower_id = ?", 
+            ];
+
+            foreach ($deleteRelations as $query) {
+                $stmtDelete = mysqli_prepare($connection, $query);
+                mysqli_stmt_bind_param($stmtDelete, "i", $blockId);
+                mysqli_stmt_execute($stmtDelete);
+                mysqli_stmt_close($stmtDelete);
+            }
 
             echo "You have been blocked";
         }
         // Or unblock
         else if (isset($_POST['unblock'])) {
-            $sql = "DELETE FROM blocks WHERE blocker_id = ? AND blocker_id = ?";
-            $stmt = mysqli_prepare($connection, $sql);
-            mysqli_stmt_bind_param($stmt, "ii", $loggedInUserId, $blockId);
-            mysqli_stmt_execute($stmt);
-            mysqli_stmt_close($stmt);
+            $sqlUnblock = "DELETE FROM blocks WHERE blocker_id = ? AND blocked_id = ?"; 
+            $stmtUnblock = mysqli_prepare($connection, $sqlUnblock);
+            mysqli_stmt_bind_param($stmtUnblock, "ii", $loggedInUserId, $blockId);
+            mysqli_stmt_execute($stmtUnblock);
+            mysqli_stmt_close($stmtUnblock);
         }
         else {
             echo "Block or unblock failed";
         }
         
-
-        mysqli_stmt_close($stmt);
     }
 ?>

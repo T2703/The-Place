@@ -32,6 +32,7 @@
                             "DELETE FROM tweet_likes WHERE user_id = ?", 
                             "DELETE FROM tweet_dislikes WHERE user_id = ?", 
                             "DELETE FROM comments WHERE user_id = ?", 
+                            "DELETE FROM follows WHERE follower_id = ?", 
                             "DELETE FROM tweets WHERE user_id = ?"
                         ];
 

@@ -173,6 +173,8 @@
                 echo "<form method='get' action='profileUpdate.php' style='margin-top: 10px;'>";
                 echo "<button type='submit' style='color: white; background-color: green; border: none; padding: 5px 10px; cursor: pointer;'>Update</button>";
                 echo "</form>";
+
+                echo "<a href='viewBlocks.php'>Banworld</a>"; 
             }
             // Show the follow button if not.
             else {
