@@ -129,9 +129,9 @@
         mysqli_stmt_close($followStmt);
 
         // Block operations & code
-        $sqlCheckBlock = "SELECT * FROM blocks WHERE blocker_id = ? AND blocked_id = ?";
+        $sqlCheckBlock = "SELECT * FROM blocks WHERE (blocker_id = ? AND blocked_id = ?) OR (blocker_id = ? AND blocked_id = ?)";
         $blockStmt = mysqli_prepare($connection, $sqlCheckBlock);
-        mysqli_stmt_bind_param($blockStmt, "ii", $loggedInUserId, $userId);
+        mysqli_stmt_bind_param($blockStmt, "iiii", $loggedInUserId, $userId, $userId, $loggedInUserId);
         mysqli_stmt_execute($blockStmt);
         $blockResult = mysqli_stmt_get_result($blockStmt);
         $isBlocked = mysqli_num_rows($blockResult) > 0;

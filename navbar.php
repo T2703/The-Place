@@ -6,6 +6,7 @@
 
 <header>
     <a href="home.php">Home</a>
+    <a href="interests.php">Interests</a>
     <?php 
         // Check if the user is logged in and if not have a login link to replace the profile link
         if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
