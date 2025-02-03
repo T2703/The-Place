@@ -41,6 +41,6 @@
     mysqli_close($connection);
 
     // Redirect back to the profile page
-    header("Location: ../profile.php");
+    header("Location: ../profileUpdate.php");
     exit;
 ?>

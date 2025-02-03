@@ -16,13 +16,62 @@
 </head>
 <body>
     What's on your mind today? <br>
-    <form method="get" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" style="margin-bottom: 20px;">
-        <input type="text" name="search" placeholder="Search posts by title..." style="padding: 5px; width: 300px;">
-        <button type="submit" style="padding: 5px 10px; background-color: blue; color: white; border: none; cursor: pointer;">Search</button>
-    </form>
     <form method="post" action="login.php">
         <input type="submit" name="logout" value="logout">
     </form>
+    <input type="text" id="search" placeholder="Search posts or users..." style="padding: 5px; width: 300px;">
+    <div id="searchResults" style="border: 1px solid #ccc; display: none; position: absolute; background: white; width: 300px;"></div>
+
+    <script>
+    document.getElementById("search").addEventListener("input", function () {
+        let query = this.value.trim();
+        let resultsDiv = document.getElementById("searchResults");
+
+        if (query.length > 0) {
+            fetch("Handlers/searchHandler.php?q=" + encodeURIComponent(query))
+                .then(response => response.json())
+                .then(data => {
+                    resultsDiv.innerHTML = "";
+                    resultsDiv.style.display = "block"; 
+
+                    if (data.length === 0) {
+                        resultsDiv.innerHTML = "<p>No results found</p>";
+                    } else {
+                        data.forEach(item => {
+                            let div = document.createElement("div");
+                            div.style.padding = "10px";
+                            div.style.cursor = "pointer";
+                            div.style.borderBottom = "1px solid #ccc";
+
+                            if (item.type === "post") {
+                                div.innerHTML = `<strong>Post:</strong> ${item.title}`;
+                                div.onclick = () => window.location.href = `comment.php?tweet_id=${item.id}`;
+                            } else if (item.type === "user") {
+                                div.innerHTML = `<strong>User:</strong> ${item.username}`;
+                                div.onclick = () => window.location.href = `profile.php?user_id=${item.id}`;
+                            }
+
+                            resultsDiv.appendChild(div);
+                        });
+                    }
+                })
+                .catch(error => console.error("Error fetching search results:", error));
+        } else {
+            resultsDiv.style.display = "none";
+        }
+    });
+
+    // Handle Enter key to go to search results page
+    document.getElementById("search").addEventListener("keypress", function (event) {
+        if (event.key === "Enter") {
+            event.preventDefault(); // Prevent form submission (if inside a form)
+            let query = this.value.trim();
+            if (query.length > 0) {
+                window.location.href = "searchResults.php?q=" + encodeURIComponent(query);
+            }
+        }
+    });
+</script>
 </body>
 </html>
 
@@ -62,6 +111,7 @@
                     
     
     // Append search condition if a search query is provided
+    // I don't want to remove this (it's useless yes but let's not break anything)
     if (!empty($search)) {
         $sql .= " AND tweets.title LIKE ?";
     }
