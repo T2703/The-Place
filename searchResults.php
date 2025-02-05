@@ -35,6 +35,10 @@
             FROM tweets 
             JOIN users ON tweets.user_id = users.id
             WHERE
+                (
+                    tweets.title LIKE ? OR
+                    users.username LIKE ?
+                ) AND
                 users.id NOT IN (
                     SELECT blocked_id FROM blocks WHERE blocker_id = ?
                 ) 
@@ -44,7 +48,7 @@
             ";   
 
     $stmt = mysqli_prepare($connection, $sql);
-    mysqli_stmt_bind_param($stmt, "ss", $searchQuery, $searchQuery);
+    mysqli_stmt_bind_param($stmt, "ssii", $searchQuery, $searchQuery, $loggedInUserId, $loggedInUserId);
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
 

@@ -161,7 +161,7 @@
                 echo "<p>No profile picture uploaded.</p>";
             }
 
-            echo "<p>Followers: {$row['follower_count']}</p>";
+            echo "<p><strong>Followers:</strong> <a href='viewFollowers.php' style='color: blue; text-decoration: none;'>{$row['follower_count']}</a></p>";
             echo "<p>Following: {$row['following_count']}</p>";
 
             // Show buttons if it's their own account
