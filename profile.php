@@ -162,7 +162,7 @@
             }
 
             echo "<p><strong>Followers:</strong> <a href='viewFollowers.php' style='color: blue; text-decoration: none;'>{$row['follower_count']}</a></p>";
-            echo "<p>Following: {$row['following_count']}</p>";
+            echo "<p><strong>Following:</strong> <a href='viewFollowing.php' style='color: blue; text-decoration: none;'>{$row['following_count']}</a></p>";
 
             // Show buttons if it's their own account
             if ($loggedInUserId == $row['id']) {
