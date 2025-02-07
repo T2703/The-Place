@@ -116,7 +116,7 @@
         $sql .= " AND tweets.title LIKE ?";
     }
 
-    $sql .= " ORDER BY tweets.created_at DESC";
+    $sql .= " ORDER BY (tweets.dislikes - tweets.likes) ASC";
 
     $stmt = mysqli_prepare($connection, $sql);
     

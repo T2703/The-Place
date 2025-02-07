@@ -11,13 +11,12 @@
         exit;
     }
     $userId = $_SESSION['user_id'];
-    echo $userId;
 
 
     if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete'])) {
         // Get the tweet ID from the form
-        $tweetId = filter_input(INPUT_POST, 'id', FILTER_SANITIZE_NUMBER_INT);
-        echo $tweetId;
+        $tweetId = filter_input(INPUT_POST, 'tweet_id', FILTER_SANITIZE_NUMBER_INT);
+        echo $tweetId, "Tweet";
 
         if (!empty($tweetId)) {
             // Prepare the delete query
@@ -55,6 +54,6 @@
     
     mysqli_close($connection);
     // Redirect back to the profile page
-    //header("Location: ../profile.php");
+    header("Location: ../profilePosts.php");
     exit;
 ?>

@@ -46,7 +46,8 @@
                     SELECT blocker_id FROM blocks WHERE blocked_id = ?
                 )
             ";   
-
+            
+    $sql .= " ORDER BY (tweets.dislikes - tweets.likes) ASC";
     $stmt = mysqli_prepare($connection, $sql);
     mysqli_stmt_bind_param($stmt, "ssii", $searchQuery, $searchQuery, $loggedInUserId, $loggedInUserId);
     mysqli_stmt_execute($stmt);

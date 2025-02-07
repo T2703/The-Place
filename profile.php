@@ -174,7 +174,7 @@
                 echo "<button type='submit' style='color: white; background-color: green; border: none; padding: 5px 10px; cursor: pointer;'>Update</button>";
                 echo "</form>";
 
-                echo "<a href='viewBlocks.php'>Banworld</a>"; 
+                echo "<a href='viewBlocks.php'>Blocked</a>"; 
             }
             // Show the follow button if not.
             else {

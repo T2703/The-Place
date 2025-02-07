@@ -95,10 +95,28 @@
     // Fetch the tweet data
     $sql = "SELECT id, username, email FROM users WHERE id = ?";
     $stmt = mysqli_prepare($connection, $sql);
-    mysqli_stmt_bind_param($stmt, "i", $_SESSION['user_id']);
+    mysqli_stmt_bind_param($stmt, "i", $userId);
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
+
+    // Private data fetching
+    $privacySql = "SELECT privacy_type, is_private FROM user_privacy WHERE user_id = ?";
+    $privacyStmt = mysqli_prepare($connection, $privacySql);
+    mysqli_stmt_bind_param($privacyStmt, "i", $userId);
+    mysqli_stmt_execute($privacyStmt);
+    $privacyResult = mysqli_stmt_get_result($privacyStmt);
+
+    $privacySettings = [];
+    while ($privacyRow = mysqli_fetch_assoc($privacyResult)) {
+        $privacySettings[$privacyRow['privacy_type']] = $privacyRow['is_private'];
+    }
+
+    // Default values if privacy settings don't exist yet
+    $privacyLikes = $privacySettings['likes'] ?? 0;
+    $privacyFollows = $privacySettings['follows'] ?? 0;
+    $privacyFollowers = $privacySettings['followers'] ?? 0;
     
+    // Show the profile update stuff
     if ($row = mysqli_fetch_assoc($result)) {
         // Profile info 
         echo "<h1>Update Profile</h1>";
@@ -119,9 +137,27 @@
         echo "<input type='file' name='profile_pic' accept='image/jpeg' required>";
         echo "<button type='submit' name='upload'>Upload</button>";
         echo "</form>";
+
+        // Private Boxes
+        echo "<form action='Handlers/updatePrivacyHandler.php' method='post' enctype='multipart/form-data'>";
+        echo "<h3>Privacy Settings:</h3>";
+
+        $privacyTypes = ['likes' => 'Private Likes', 'follows' => 'Private Follows', 'followers' => 'Private Followers'];
+       
+        foreach ($privacyTypes as $type => $label) {
+            $isChecked = !empty($privacySettings[$type]) && $privacySettings[$type] ? 'checked' : '';
+            echo "<label>";
+            echo "<input type='checkbox' name='privacy_$type' value='1' $isChecked> $label";
+            echo "</label><br>";
+        }
+
+        echo "<button type='submit' name='upload'>Upload</button>";
+        echo "</form>";
+
     }
     else {
         echo "Unable to fetch profile details.";
     }
+    mysqli_stmt_close($privacyStmt);
     mysqli_close($connection);
 ?>
