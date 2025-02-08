@@ -137,6 +137,23 @@
         $isBlocked = mysqli_num_rows($blockResult) > 0;
         mysqli_stmt_close($blockStmt);
 
+        // Private data fetching
+        $privacySql = "SELECT privacy_type, is_private FROM user_privacy WHERE user_id = ?";
+        $privacyStmt = mysqli_prepare($connection, $privacySql);
+        mysqli_stmt_bind_param($privacyStmt, "i", $userId);
+        mysqli_stmt_execute($privacyStmt);
+        $privacyResult = mysqli_stmt_get_result($privacyStmt);
+
+        $privacySettings = [];
+        while ($privacyRow = mysqli_fetch_assoc($privacyResult)) {
+            $privacySettings[$privacyRow['privacy_type']] = $privacyRow['is_private'];
+        }
+
+        // Default values if privacy settings don't exist yet
+        $privacyLikes = $privacySettings['likes'] ?? 0;
+        $privacyFollows = $privacySettings['follows'] ?? 0;
+        $privacyFollowers = $privacySettings['followers'] ?? 0;
+
         // First checked if they are blocked
         if ($isBlocked) {
             echo "This user is blocked.";
@@ -149,7 +166,14 @@
             echo "<p><strong>Username:</strong> {$row['username']}</p>";
             echo "<p><strong>Email:</strong> {$row['email']}</p>";
             echo "<p><strong>Posts:</strong> <a href='profilePosts.php' style='color: blue; text-decoration: none;'>{$row['post_count']}</a></p>";
-            echo "<p><strong>Likes:</strong> <a href='viewlikes.php' style='color: blue; text-decoration: none;'>{$row['liked_post_count']}</a></p>";
+            
+            if ($privacyLikes == 0  || $loggedInUserId == $userId) {
+                echo "<p><strong>Likes:</strong> <a href='viewlikes.php' style='color: blue; text-decoration: none;'>{$row['liked_post_count']}</a></p>";
+            }
+            else {
+                echo "Private likes";
+            }
+
             echo "<p><strong>Member Since:</strong> " . date("F d, Y", strtotime($row['reg_date'])) . "</p>";
             echo "</div>";
 
@@ -161,8 +185,19 @@
                 echo "<p>No profile picture uploaded.</p>";
             }
 
-            echo "<p><strong>Followers:</strong> <a href='viewFollowers.php' style='color: blue; text-decoration: none;'>{$row['follower_count']}</a></p>";
-            echo "<p><strong>Following:</strong> <a href='viewFollowing.php' style='color: blue; text-decoration: none;'>{$row['following_count']}</a></p>";
+            if ($privacyFollowers == 0  || $loggedInUserId == $userId) {
+                echo "<p><strong>Followers:</strong> <a href='viewFollowers.php' style='color: blue; text-decoration: none;'>{$row['follower_count']}</a></p>";
+            }
+            else {
+                echo "Private followers";
+            }
+
+            if ($privacyFollows == 0  || $loggedInUserId == $userId) {
+                echo "<p><strong>Following:</strong> <a href='viewFollowing.php' style='color: blue; text-decoration: none;'>{$row['following_count']}</a></p>";
+            }
+            else {
+                echo "Private following";
+            }
 
             // Show buttons if it's their own account
             if ($loggedInUserId == $row['id']) {
