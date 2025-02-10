@@ -140,6 +140,8 @@
         echo "<p>{$row['content']}</p>";
         echo "<p><em>Posted on {$row['created_at']}</em></p>";
         echo "<p><strong>Likes:</strong> {$row['like_count']} | <strong>Dislikes:</strong> {$row['dislike_count']}</p> <strong>Comments:</strong> {$row['comments_count']}</p>";
+        echo '<img src="Handlers/displayImagesHandler.php?tweet_id=' . $row['id'] . '" width="150" height="150" style="border-radius: 100%;">';
+        
         echo "</div>";
 
         // Profile pic
