@@ -38,20 +38,32 @@
         }
 
         // Delete the comment from the table
-        $sqlDelete = "DELETE FROM comments WHERE id = ?";
-        $stmtDelete = mysqli_prepare($connection, $sqlDelete);
+        $sqlDelete = [
+            "DELETE FROM comments WHERE id = ?",
+            "DELETE FROM comment_likes WHERE comment_id = ?",
+            "DELETE FROM comment_dislikes WHERE comment_id = ?"
+        ];
 
-        if ($stmtDelete) {
-            mysqli_stmt_bind_param($stmtDelete, "i", $tweetId);
-            if (mysqli_stmt_execute($stmtDelete)) {
-                header("Location: comment.php?tweet_id=$tweetIdGoBack");
+        // Execute each delete query in the array
+        foreach ($sqlDelete as $query) {
+            $stmtDelete = mysqli_prepare($connection, $query);
+            if ($stmtDelete) {
+                mysqli_stmt_bind_param($stmtDelete, "i", $tweetId);
+                if (!mysqli_stmt_execute($stmtDelete)) {
+                    echo "Error executing query: " . mysqli_error($connection);
+                    mysqli_stmt_close($stmtDelete);
+                    exit;
+                }
+                mysqli_stmt_close($stmtDelete);
             } else {
-                echo "Error: Could not delete the comment.";
+                echo "Error preparing query: " . mysqli_error($connection);
+                exit;
             }
-            mysqli_stmt_close($stmtDelete);
-        } else {
-            echo "Error preparing query: " . mysqli_error($connection);
         }
+
+        // Redirect back to the comment page
+        //header("Location: comment.php?tweet_id=$tweetIdGoBack");
+        //exit;
     } else {
         echo "Invalid request.";
     }
