@@ -16,6 +16,57 @@
 </head>
 <body>
     Profile <br>
+    <input type="text" id="search" placeholder="Search posts or users..." style="padding: 5px; width: 300px;">
+    <div id="searchResults" style="border: 1px solid #ccc; display: none; position: absolute; background: white; width: 300px;"></div>
+
+    <script>
+    document.getElementById("search").addEventListener("input", function () {
+        let query = this.value.trim();
+        let resultsDiv = document.getElementById("searchResults");
+        let profileUserId = new URLSearchParams(window.location.search).get('user_id'); 
+
+        if (query.length > 0) {
+            fetch(`Handlers/searchHandlerProfilePosts.php?q=${encodeURIComponent(query)}&user_id=${profileUserId}`)
+                .then(response => response.json())
+                .then(data => {
+                    resultsDiv.innerHTML = "";
+                    resultsDiv.style.display = "block"; 
+
+                    if (data.length === 0) {
+                        resultsDiv.innerHTML = "<p>No results found</p>";
+                    } else {
+                        data.forEach(item => {
+                            let div = document.createElement("div");
+                            div.style.padding = "10px";
+                            div.style.cursor = "pointer";
+                            div.style.borderBottom = "1px solid #ccc";
+
+                            if (item.type === "post") {
+                                div.innerHTML = `<strong>Post:</strong> ${item.title}`;
+                                div.onclick = () => window.location.href = `comment.php?tweet_id=${item.id}`;
+                            } 
+
+                            resultsDiv.appendChild(div);
+                        });
+                    }
+                })
+                .catch(error => console.error("Error fetching search results:", error));
+        } else {
+            resultsDiv.style.display = "none";
+        }
+    });
+
+    // Handle Enter key to go to search results page
+    document.getElementById("search").addEventListener("keypress", function (event) {
+        if (event.key === "Enter") {
+            event.preventDefault(); // Prevent form submission (if inside a form)
+            let query = this.value.trim();
+            if (query.length > 0) {
+                window.location.href = "searchResults.php?q=" + encodeURIComponent(query);
+            }
+        }
+    });
+</script>
 </body>
 </html>
 
@@ -25,20 +76,33 @@
         echo "You need to log in to post";
         exit;
     }
-    else {
-        $userId = $_SESSION['user_id'];
+
+    $userId = $_SESSION['user_id'];
+
+    if (isset($_GET['user_id'])) {
+        $profileUserId = intval($_GET['user_id']);
     }
+
+    $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 
     // Get the tweets from the logged in user. 
     $sql = "SELECT tweets.id, tweets.title, tweets.content, tweets.created_at, users.username 
-            FROM tweets 
-            JOIN users ON tweets.user_id = users.id
-            WHERE tweets.user_id = ?
-            ORDER BY tweets.created_at DESC";
+    FROM tweets 
+    JOIN users ON tweets.user_id = users.id
+    WHERE tweets.user_id = ?
+    ORDER BY tweets.created_at DESC";
+    
     
     // Needed for filtering the data (i is for injection we to prevent that)
     $stmt = mysqli_prepare($connection, $sql);
-    mysqli_stmt_bind_param($stmt, "i", $userId);
+
+    if (!empty($search)) {
+        $searchParam = '%' . $search . '%';
+        mysqli_stmt_bind_param($stmt, "isss", $profileUserId, $searchParam, $searchParam, $searchParam);
+    } else {
+        mysqli_stmt_bind_param($stmt, "i", $profileUserId);
+    }
+
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
 

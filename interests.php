@@ -16,10 +16,6 @@
 </head>
 <body>
     Your interests (who you follow) <br>
-    <form method="get" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" style="margin-bottom: 20px;">
-        <input type="text" name="search" placeholder="Search posts by title..." style="padding: 5px; width: 300px;">
-        <button type="submit" style="padding: 5px 10px; background-color: blue; color: white; border: none; cursor: pointer;">Search</button>
-    </form>
     <form method="post" action="login.php">
         <input type="submit" name="logout" value="logout">
     </form>
@@ -35,7 +31,7 @@
 
     $userId = $_SESSION['user_id'];
 
-    $search = isset($_GET['search']) ? trim($_GET['search']) : '';
+    $filterUserId  = isset($_GET['filter_user_id']) ? trim($_GET['filter_user_id']) : '';
 
     // Get the tweets from the followed users. 
     $sql = "
@@ -62,22 +58,19 @@
         )
 ";
                     
-    
-    // Append search condition if a search query is provided
-    if (!empty($search)) {
-        $sql .= " AND tweets.title LIKE ?";
+    // Add the filter condition for `filter_user_id` if it's set
+    if ($filterUserId) {
+        $sql .= " AND tweets.user_id = ?";
     }
 
     $sql .= " ORDER BY tweets.created_at DESC";
 
     $stmt = mysqli_prepare($connection, $sql);
     
-    // Bind the search parameter if applicable
-    if (!empty($search)) {
-        $searchParam = '%' . $search . '%';
-        mysqli_stmt_bind_param($stmt, "iiis", $userId, $userId, $userId, $searchParam);
-    }
-    else {
+    // Bind the appropriate parameters
+    if ($filterUserId) {
+        mysqli_stmt_bind_param($stmt, "iiii", $userId, $userId, $userId, $filterUserId);
+    } else {
         mysqli_stmt_bind_param($stmt, "iii", $userId, $userId, $userId);
     }
 
@@ -86,6 +79,14 @@
 
     // Fetching each tweet from the database. 
     while ($row = mysqli_fetch_assoc($result)) {
+        echo "<div style='display: flex; align-items: flex-start; margin-bottom: 20px;'>";
+
+        // Profile pic for selecting filter
+        if (!empty($row['pfp'])) {
+            echo '<a href="?filter_user_id=' . $row['user_id'] . '">';
+            echo '<img src="Handlers/displayPFPHandler.php?user_id=' . $row['user_id'] . '" width="150" height="150" style="border-radius: 100%;">';
+            echo '</a>';
+        }
         echo "<div style='border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;'>";
         echo "<p><a href='profile.php?user_id={$row['user_id']}' style='color: blue; text-decoration: none;'>{$row['username']}</a></p>";
         echo "<p><strong>Title:</strong> {$row['title']}</p>";
@@ -119,6 +120,7 @@
         echo "<input type='hidden' name='tweet_id' value='{$row['id']}'>";
         echo "<button type='submit' name='comment' style='color: white; background-color: blue; border: none; padding: 5px 10px; cursor: pointer;'>Comment</button>";
         echo "</form>";
+        
     }
 
     // This is a place holder for testing out

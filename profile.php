@@ -165,7 +165,7 @@
             echo "<div style='border: 1px solid #ccc; padding: 10px; margin-bottom: 20px;'>";
             echo "<p><strong>Username:</strong> {$row['username']}</p>";
             echo "<p><strong>Email:</strong> {$row['email']}</p>";
-            echo "<p><strong>Posts:</strong> <a href='profilePosts.php' style='color: blue; text-decoration: none;'>{$row['post_count']}</a></p>";
+            echo "<p><strong>Posts:</strong> <a href='profilePosts.php?user_id={$row['id']}' style='color: blue; text-decoration: none;'>{$row['post_count']}</a></p>";
             
             if ($privacyLikes == 0  || $loggedInUserId == $userId) {
                 echo "<p><strong>Likes:</strong> <a href='viewlikes.php' style='color: blue; text-decoration: none;'>{$row['liked_post_count']}</a></p>";
