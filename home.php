@@ -12,15 +12,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Home</title>
+    <link rel="stylesheet" href="styles/home.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
 </head>
 <body>
     What's on your mind today? <br>
     <form method="post" action="login.php">
         <input type="submit" name="logout" value="logout">
     </form>
-    <input type="text" id="search" placeholder="Search posts or users..." style="padding: 5px; width: 300px;">
-    <div id="searchResults" style="border: 1px solid #ccc; display: none; position: absolute; background: white; width: 300px;"></div>
+    <div class="search-container">
+        <input type="text" id="search" placeholder="Search posts or users...">
+        <div id="searchResults" class="search-results"></div>
+    </div>
 
     <script>
     document.getElementById("search").addEventListener("input", function () {
@@ -47,7 +51,7 @@
                                 div.innerHTML = `<strong>Post:</strong> ${item.title}`;
                                 div.onclick = () => window.location.href = `comment.php?tweet_id=${item.id}`;
                             } else if (item.type === "user") {
-                                div.innerHTML = `<strong>User:</strong> ${item.username}`;
+                                div.innerHTML = `<strong>User:</strong> ${item.title}`;
                                 div.onclick = () => window.location.href = `profile.php?user_id=${item.id}`;
                             }
 
@@ -134,41 +138,39 @@
 
     // Fetching each tweet from the database. 
     while ($row = mysqli_fetch_assoc($result)) {
-        echo "<div style='border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;'>";
-        echo "<p><a href='profile.php?user_id={$row['user_id']}' style='color: blue; text-decoration: none;'>{$row['username']}</a></p>";
-        echo "<p><strong>Title:</strong> {$row['title']}</p>";
-        echo "<p>{$row['content']}</p>";
-        echo "<p><em>Posted on {$row['created_at']}</em></p>";
-        echo "<p><strong>Likes:</strong> {$row['like_count']} | <strong>Dislikes:</strong> {$row['dislike_count']}</p> <strong>Comments:</strong> {$row['comments_count']}</p>";
-        echo '<img src="Handlers/displayImagesHandler.php?tweet_id=' . $row['id'] . '" width="150" height="150" style="border-radius: 100%;">';
+        echo "<div class='post'>";
+        echo "<div style='display: flex; align-items: center;'>";
         
+        if (!empty($row['pfp'])) {
+            echo "<img src='Handlers/displayPFPHandler.php?user_id={$row['user_id']}' class='pfp'>";
+        }
+
+        echo "<a href='profile.php?user_id={$row['user_id']}' class='username'>{$row['username']}</a>";
         echo "</div>";
 
-        // Profile pic
-        if (!empty($row['pfp'])) {
-            echo '<img src="Handlers/displayPFPHandler.php?user_id=' . $row['user_id'] . '" width="150" height="150" style="border-radius: 100%;">';
-        }
-        else {
-            echo "<p>No profile picture uploaded.</p>";
-        }
-        
-        // Like button 
-        echo "<form method='post' action='Handlers/likeHandler.php' style='margin-top: 10px;'>";
+        echo "<p class='title'>{$row['title']}</p>";
+        echo "<p class='content'>{$row['content']}</p>";
+        echo "<p class='meta'>Posted on " . date("F d, Y", strtotime($row['created_at'])) . "</p>";
+        echo "<p class='meta'><strong>Likes:</strong> {$row['like_count']} | <strong>Dislikes:</strong> {$row['dislike_count']} | <strong>Comments:</strong> {$row['comments_count']}</p>";
+
+        echo "<div class='button-group'>";
+        echo "<form method='post' action='Handlers/likeHandler.php'>";
         echo "<input type='hidden' name='tweet_id' value='{$row['id']}'>";
-        echo "<button type='submit' name='like' style='color: white; background-color: green; border: none; padding: 5px 10px; cursor: pointer;'>Like</button>";
-        echo "</form>";
-    
-        // Dislike button 
-        echo "<form method='post' action='Handlers/dislikeHandler.php' style='margin-top: 10px;'>";
-        echo "<input type='hidden' name='tweet_id' value='{$row['id']}'>";
-        echo "<button type='submit' name='dislike' style='color: white; background-color: red; border: none; padding: 5px 10px; cursor: pointer;'>Dislike</button>";
+        echo "<button type='submit' name='like' class='like-btn'>Like</button>";
         echo "</form>";
 
-        // Comment button 
-        echo "<form method='get' action='comment.php' style='margin-top: 10px;'>";
+        echo "<form method='post' action='Handlers/dislikeHandler.php'>";
         echo "<input type='hidden' name='tweet_id' value='{$row['id']}'>";
-        echo "<button type='submit' name='comment' style='color: white; background-color: blue; border: none; padding: 5px 10px; cursor: pointer;'>Comment</button>";
+        echo "<button type='submit' name='dislike' class='dislike-btn'>Dislike</button>";
         echo "</form>";
+
+        echo "<form method='get' action='comment.php'>";
+        echo "<input type='hidden' name='tweet_id' value='{$row['id']}'>";
+        echo "<button type='submit' name='comment' class='comment-btn'>Comment</button>";
+        echo "</form>";
+        
+        echo "</div>"; // Close button group
+        echo "</div>"; // Close post
     }
 
     // This is a place holder for testing out

@@ -1,0 +1,90 @@
+/* Reset Defaults */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Centered Form Container */
+.post-container {
+    max-width: 500px;
+    margin: 100px auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+/* Title */
+.post-container h2 {
+    color: #1203ed;
+    margin-bottom: 20px;
+}
+
+/* Labels */
+.post-container label {
+    display: block;
+    font-weight: bold;
+    text-align: left;
+    margin-top: 15px;
+}
+
+/* Inputs & Textarea */
+.post-container input[type="text"],
+.post-container textarea,
+.post-container input[type="file"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    margin-top: 5px;
+}
+
+/* Textarea */
+.post-container textarea {
+    height: 120px;
+    resize: none;
+}
+
+/* Submit Button */
+.post-btn {
+    background: #090082;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 15px;
+}
+
+.post-btn:hover {
+    background: #6a0dad;
+}
+
+/* Image Preview */
+#imagePreview img {
+    max-width: 100px;
+    max-height: 100px;
+    border-radius: 10px;
+    margin-top: 10px;
+}
+
+/* Error Message */
+.success-message {
+    color: rgb(0, 8, 255);
+    text-align: center;
+    font-size: 18px;
+    margin-top: 20px;
+}
+
+/* Error Message */
+.error-message {
+    color: red;
+    text-align: center;
+    font-size: 18px;
+    margin-top: 20px;
+}

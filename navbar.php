@@ -4,7 +4,9 @@
     }
 ?>
 
-<header>
+<header class="navbar">
+<link rel="stylesheet" href="styles/navbar.css"> 
+<link rel="preconnect" href="https://fonts.googleapis.com">
     <a href="home.php">Home</a>
     <a href="interests.php">Interests</a>
     <?php 

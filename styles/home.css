@@ -1,0 +1,118 @@
+/* Home Page Layout */
+.container {
+    margin-top: 80px; /* Navbar offset */
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Search Bar */
+#search {
+    display: block;
+    width: 30%; /* Reduce width */
+    max-width: 300px; /* Prevent it from getting too big */
+    padding: 8px; /* Reduce padding */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin: 20px auto; /* Centers it horizontally */
+    text-align: center; /* Centers text inside the input */
+    font-size: 14px; /* Adjust font size */
+}
+
+#searchResults {
+    display: none;
+    position: absolute;
+    left: 50%; /* Move to the center */
+    transform: translateX(-50%); /* Adjust to truly center it */
+    background: white;
+    width: 30%;
+    max-width: 300px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    text-align: center;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 99; /* Make sure it stays on top */
+}
+
+
+/* Post Styles */
+.post {
+    background: #fff;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.post .username {
+    font-weight: bold;
+    color: #4b0082;
+    text-decoration: none;
+}
+
+.post .title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+.post .content {
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+.post .meta {
+    font-size: 12px;
+    color: gray;
+    margin-top: 5px;
+}
+
+/* Profile Picture */
+.pfp {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 10px;
+}
+
+/* 👍 Like, 👎 Dislike, 💬 Comment Buttons */
+.button-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.button-group button {
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 5px;
+    color: white;
+    font-size: 14px;
+}
+
+.like-btn {
+    background-color: #4caf50;
+}
+
+.like-btn:hover {
+    background-color: #45a049;
+}
+
+.dislike-btn {
+    background-color: #f44336;
+}
+
+.dislike-btn:hover {
+    background-color: #d32f2f;
+}
+
+.comment-btn {
+    background-color: #3b5998;
+}
+
+.comment-btn:hover {
+    background-color: #2d4373;
+}

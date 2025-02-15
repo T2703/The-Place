@@ -12,21 +12,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Create Post</title>
+    <link rel="stylesheet" href="styles/tweet.css"> 
 </head>
 <body>
-    Create post <br>
+<div class="post-container">
+    <h2>Create a New Post</h2>
     <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype='multipart/form-data'>
-        <label for="title">Title:</label><br>
-        <input type="text" id="title" name="title" placeholder="Title here..." maxlength="255" required> <br>
-
-        <label for="tweet">Post:</label><br>
-        <textarea id="tweet" name="tweet" placeholder="Write something..." style="height:200px" required></textarea><br>
         
-        <label for='image'>Upload Image (4 max):</label>
-        <input type='file' name='image[]' accept='image/jpeg' multiple>
-        <input type="submit" name="submit" value="Tweet"><br> 
+        <label for="title">Title:</label>
+        <input type="text" id="title" name="title" placeholder="Enter post title..." maxlength="255" required>
+
+        <label for="tweet">Post:</label>
+        <textarea id="tweet" name="tweet" placeholder="Write something..." required></textarea>
+
+        <button type="submit" name="submit" class="post-btn">Tweet</button>
     </form>
+</div>
 </body>
 </html>
 
@@ -45,20 +47,6 @@
         $title = filter_input(INPUT_POST, "title", FILTER_SANITIZE_SPECIAL_CHARS);
         $tweet = filter_input(INPUT_POST, "tweet", FILTER_SANITIZE_SPECIAL_CHARS);
         $imageDataArray = [];
-
-        // Get image data
-        if (!empty($_FILES["image"]["tmp_name"][0])) {
-            // Count the files
-            if (count($_FILES["image"]["tmp_name"]) > 4) {
-                echo "You can only upload up to 4 images.";
-                exit;
-            }
-            foreach ($_FILES["image"]["tmp_name"] as $imageTmp) {
-                if (!empty($imageTmp)) {
-                    $imageDataArray[] = file_get_contents($imageTmp); // Read binary data
-                }
-            }
-        }
  
         if (!empty($title) && !empty($tweet)) {
             // Insert post first
@@ -84,13 +72,13 @@
                         mysqli_stmt_close($stmtImage);
                     }
     
-                    echo "You have posted!";
+                    echo "<p class='success-message'>Your post has been published!</p>";
                 } catch (mysqli_sql_exception $e) {
-                    echo "Uh oh bad request: " . $e->getMessage();
+                    echo "<p class='error-message'>Error: " . $e->getMessage() . "</p>";
                 }
                 mysqli_stmt_close($stmtTweet);
             } else {
-                echo "Failed to prepare the statement.";
+                echo "<p class='error-message'>Failed to prepare the statement.</p>";
             }
         }
     }

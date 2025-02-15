@@ -11,20 +11,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Login</title>
+    <link rel="stylesheet" href="styles/login.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
 </head>
 <body>
-    <form action="<?php htmlspecialchars($_SERVER["PHP_SELF"])?>" method="post">
-        <h2>Login</h2>
-        <label>email:</label><br>
-        <input type="email" name="email" required> <br>
+    <div class="login-container">
+        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" class="login-form">
+            <h2>Login</h2>
 
-        <label>Password:</label><br>
-        <input type="password" name="password" required><br>
+            <div class="input-group">
+                <label>Email</label>
+                <input type="email" name="email" required>
+            </div>
 
-        <input type="submit" name="submit" value="login"><br> 
-        <a href="index.php">Don't have an account? Register here.</a>
-    </form>
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" name="password" required>
+            </div>
+
+            <button type="submit" name="submit">Login</button>
+
+            <p>Don't have an account? <a href="index.php">Register here.</a></p>
+        </form>
+    </div>
 </body>
 </html>
 
@@ -53,13 +63,12 @@
                     exit();
                 }
                 else {
-                    echo "Incorrect password!";
+                    echo "<p class='error'>Incorrect password!</p>";
                 }
             }
             else {
-                echo "No account found with that email";
+                echo "<p class='error'>No account found with that email</p>";
             }
-
         }
     }
     mysqli_close($connection);
