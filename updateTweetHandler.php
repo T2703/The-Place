@@ -42,6 +42,6 @@
     mysqli_close($connection);
 
     // Redirect back to the profile page
-    header("Location: profile.php");
+    header('Location: profilePosts.php?user_id='.$userId);
     exit;
 ?>

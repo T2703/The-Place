@@ -18,9 +18,6 @@
 </head>
 <body>
     What's on your mind today? <br>
-    <form method="post" action="login.php">
-        <input type="submit" name="logout" value="logout">
-    </form>
     <div class="search-container">
         <input type="text" id="search" placeholder="Search posts or users...">
         <div id="searchResults" class="search-results"></div>
@@ -34,6 +31,7 @@
         if (query.length > 0) {
             fetch("Handlers/searchHandler.php?q=" + encodeURIComponent(query))
                 .then(response => response.json())
+                
                 .then(data => {
                     resultsDiv.innerHTML = "";
                     resultsDiv.style.display = "block"; 

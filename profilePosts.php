@@ -12,11 +12,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Profile Posts</title>
+    <link rel="stylesheet" href="styles/home.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
 </head>
 <body>
-    Profile <br>
-    <input type="text" id="search" placeholder="Search posts or users..." style="padding: 5px; width: 300px;">
+    <input type="text" id="search" placeholder="Search posts..." style="padding: 5px; width: 300px;">
     <div id="searchResults" style="border: 1px solid #ccc; display: none; position: absolute; background: white; width: 300px;"></div>
 
     <script>
@@ -58,11 +59,12 @@
 
     // Handle Enter key to go to search results page
     document.getElementById("search").addEventListener("keypress", function (event) {
+        let profileUserId = new URLSearchParams(window.location.search).get('user_id'); 
         if (event.key === "Enter") {
             event.preventDefault(); // Prevent form submission (if inside a form)
             let query = this.value.trim();
             if (query.length > 0) {
-                window.location.href = "searchResults.php?q=" + encodeURIComponent(query);
+                window.location.href = `searchResultsPosts.php?q=${encodeURIComponent(query)}&user_id=${profileUserId}`;
             }
         }
     });
@@ -77,6 +79,7 @@
         exit;
     }
 
+    // logged in user
     $userId = $_SESSION['user_id'];
 
     if (isset($_GET['user_id'])) {
@@ -86,13 +89,15 @@
     $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 
     // Get the tweets from the logged in user. 
-    $sql = "SELECT tweets.id, tweets.title, tweets.content, tweets.created_at, users.username 
+    $sql = "SELECT tweets.id, tweets.title, tweets.content, tweets.created_at, users.username,
+                (SELECT COUNT(*) FROM tweet_likes WHERE tweet_likes.tweet_id = tweets.id) AS like_count,
+            (SELECT COUNT(*) FROM tweet_dislikes WHERE tweet_dislikes.tweet_id = tweets.id) AS dislike_count,
+            (SELECT COUNT(*) FROM comments WHERE comments.tweet_id = tweets.id) AS comments_count
     FROM tweets 
     JOIN users ON tweets.user_id = users.id
-    WHERE tweets.user_id = ?
-    ORDER BY tweets.created_at DESC";
+    WHERE tweets.user_id = ?";
     
-    
+    $sql .= " ORDER BY (tweets.dislikes - tweets.likes) ASC";
     // Needed for filtering the data (i is for injection we to prevent that)
     $stmt = mysqli_prepare($connection, $sql);
 
@@ -108,29 +113,52 @@
 
     // Check if there is any tweets
     if (mysqli_num_rows($result) > 0) {
-        echo "Your posts";
 
         // Fetching each tweet from the database. 
         while ($row = mysqli_fetch_assoc($result)) {
             // Tweet information 
-            echo "<div style='border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;'>";
-            echo "<p><strong>{$row['username']}</strong></p>";
-            echo "<p><strong>Title:</strong> {$row['title']}</p>";
-            echo "<p>{$row['content']}</p>";
-            echo "<p><em>Posted on {$row['created_at']}</em></p>";
+            echo "<div class='post'>";
+            echo "<div style='display: flex; align-items: center;'>";
             echo "</div>";
+            echo "<p class='title'>{$row['title']}</p>";
+            echo "<p class='content'>{$row['content']}</p>";
+            echo "<p class='meta'>Posted on " . date("F d, Y", strtotime($row['created_at'])) . "</p>";
+            echo "<p class='meta'><strong>Likes:</strong> {$row['like_count']} | <strong>Dislikes:</strong> {$row['dislike_count']} | <strong>Comments:</strong> {$row['comments_count']}</p>";
+
+            // Likes, dislikes, comments
+            echo "<div class='button-group'>";
+            echo "<form method='post' action='Handlers/likeHandler.php'>";
+            echo "<input type='hidden' name='tweet_id' value='{$row['id']}'>";
+            echo "<button type='submit' name='like' class='like-btn'>Like</button>";
+            echo "</form>";
+    
+            echo "<form method='post' action='Handlers/dislikeHandler.php'>";
+            echo "<input type='hidden' name='tweet_id' value='{$row['id']}'>";
+            echo "<button type='submit' name='dislike' class='dislike-btn'>Dislike</button>";
+            echo "</form>";
+    
+            echo "<form method='get' action='comment.php'>";
+            echo "<input type='hidden' name='tweet_id' value='{$row['id']}'>";
+            echo "<button type='submit' name='comment' class='comment-btn'>Comment</button>";
+            echo "</form>";
 
             // Update button 
-            echo "<form method='get' action='updateTweet.php' style='margin-top: 10px;'>";
-            echo "<input type='hidden' name='tweet_id' value='{$row['id']}'>"; // Pass the tweet ID into the script
-            echo "<button type='submit' name='update' style='color: white; background-color: green; border: none; padding: 5px 10px; cursor: pointer;'>Update</button>";
-            echo "</form>";
+            if ($userId == $profileUserId) {
+                // Update button 
+                echo "<form method='get' action='updateTweet.php' style='margin-top: 10px;'>";
+                echo "<input type='hidden' name='tweet_id' value='{$row['id']}'>"; // Pass the tweet ID into the script
+                echo "<button type='submit' name='update' class='like-btn' style='color: white; background-color: green; border: none; cursor: pointer;'>Edit</button>";
+                echo "</form>";
+    
+                // Delete button 
+                echo "<form method='post' action='Handlers/deleteTweetHandler.php' style='margin-top: 10px;'>";
+                echo "<input type='hidden' name='tweet_id' value='{$row['id']}'>"; // Pass the tweet ID into the script
+                echo "<button type='submit' name='delete' class='dislike-btn' style='color: white; background-color: red; border: none; cursor: pointer;'>Delete</button>";
+                echo "</form>";
+            }
 
-            // Delete button 
-            echo "<form method='post' action='Handlers/deleteTweetHandler.php' style='margin-top: 10px;'>";
-            echo "<input type='hidden' name='tweet_id' value='{$row['id']}'>"; // Pass the tweet ID into the script
-            echo "<button type='submit' name='delete' style='color: white; background-color: red; border: none; padding: 5px 10px; cursor: pointer;'>Delete</button>";
-            echo "</form>";
+            echo "</div>"; // Close button group
+            echo "</div>"; // Close post
         }
     }
     else {

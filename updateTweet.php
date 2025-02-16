@@ -12,10 +12,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Edit Post</title>
+    <link rel="stylesheet" href="styles/tweet.css"> 
 </head>
 <body>
-    Update <br>
 </body>
 </html>
 
@@ -47,14 +47,17 @@
     
     if ($row = mysqli_fetch_assoc($result)) {
         // Tweet information 
+        echo '<div class="post-container">';
+        echo '<h2>Create a New Post</h2>';
         echo "<form method='post' action='updateTweetHandler.php'>";
         echo "<input type='hidden' name='tweet_id' value='{$row['id']}'>"; 
         echo "<label for='title'>Title:</label><br>";
         echo "<input type='text' id='title' name='title' value='" . htmlspecialchars($row['title'], ENT_QUOTES, 'UTF-8') . "' required><br><br>";
         echo "<label for='content'>Content:</label><br>";
         echo "<textarea id='content' name='content' rows='5' cols='50' required>" . htmlspecialchars_decode($row['content'], ENT_QUOTES) . "</textarea><br><br>";
-        echo "<button type='submit'>Update</button>";
+        echo "<button type='submit' class='post-btn'>Edit</button>";
         echo "</form>";
+        echo "</div>";
     }
     else {
         echo "Post not found";

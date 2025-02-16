@@ -168,7 +168,7 @@
             echo "<p><strong>Posts:</strong> <a href='profilePosts.php?user_id={$row['id']}' style='color: blue; text-decoration: none;'>{$row['post_count']}</a></p>";
             
             if ($privacyLikes == 0  || $loggedInUserId == $userId) {
-                echo "<p><strong>Likes:</strong> <a href='viewlikes.php' style='color: blue; text-decoration: none;'>{$row['liked_post_count']}</a></p>";
+                echo "<p><strong>Likes:</strong> <a href='viewlikes.php?user_id={$row['id']}' style='color: blue; text-decoration: none;'>{$row['liked_post_count']}</a></p>";
             }
             else {
                 echo "Private likes";
@@ -186,14 +186,14 @@
             }
 
             if ($privacyFollowers == 0  || $loggedInUserId == $userId) {
-                echo "<p><strong>Followers:</strong> <a href='viewFollowers.php' style='color: blue; text-decoration: none;'>{$row['follower_count']}</a></p>";
+                echo "<p><strong>Followers:</strong> <a href='viewFollowers.php?user_id={$row['id']}' style='color: blue; text-decoration: none;'>{$row['follower_count']}</a></p>";
             }
             else {
                 echo "Private followers";
             }
 
             if ($privacyFollows == 0  || $loggedInUserId == $userId) {
-                echo "<p><strong>Following:</strong> <a href='viewFollowing.php' style='color: blue; text-decoration: none;'>{$row['following_count']}</a></p>";
+                echo "<p><strong>Following:</strong> <a href='viewFollowing.php?user_id={$row['id']}' style='color: blue; text-decoration: none;'>{$row['following_count']}</a></p>";
             }
             else {
                 echo "Private following";

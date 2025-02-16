@@ -12,10 +12,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>View Likes</title>
 </head>
 <body>
     Your likes <br>
+
+    Profile <br>
+    <input type="text" id="search" placeholder="Search your liked posts..." style="padding: 5px; width: 300px;">
+    <div id="searchResults" style="border: 1px solid #ccc; display: none; position: absolute; background: white; width: 300px;"></div>
+
+    <script>
+    document.getElementById("search").addEventListener("input", function () {
+        let query = this.value.trim();
+        let resultsDiv = document.getElementById("searchResults");
+        let profileUserId = new URLSearchParams(window.location.search).get('user_id'); 
+
+        if (query.length > 0) {
+            fetch(`Handlers/searchHandlerLikes.php?q=${encodeURIComponent(query)}&user_id=${profileUserId}`)
+                .then(response => response.json())
+                .then(data => {
+                    resultsDiv.innerHTML = "";
+                    resultsDiv.style.display = "block"; 
+
+                    if (data.length === 0) {
+                        resultsDiv.innerHTML = "<p>No results found</p>";
+                    } else {
+                        data.forEach(item => {
+                            let div = document.createElement("div");
+                            div.style.padding = "10px";
+                            div.style.cursor = "pointer";
+                            div.style.borderBottom = "1px solid #ccc";
+
+                            if (item.type === "post") {
+                                div.innerHTML = `<strong>Post:</strong> ${item.title}`;
+                                div.onclick = () => window.location.href = `comment.php?tweet_id=${item.id}`;
+                            } 
+
+                            resultsDiv.appendChild(div);
+                        });
+                    }
+                })
+                .catch(error => console.error("Error fetching search results:", error));
+        } else {
+            resultsDiv.style.display = "none";
+        }
+    });
+
+    // Handle Enter key to go to search results page
+    document.getElementById("search").addEventListener("keypress", function (event) {
+        if (event.key === "Enter") {
+            event.preventDefault(); // Prevent form submission (if inside a form)
+            let query = this.value.trim();
+            if (query.length > 0) {
+                window.location.href = "searchResults.php?q=" + encodeURIComponent(query);
+            }
+        }
+    });
+</script>
 </body>
 </html>
 
@@ -26,7 +79,11 @@
         exit;
     }
     else {
-        $userId = $_SESSION['user_id'];
+        $loggedinUserId = $_SESSION['user_id'];
+    }
+
+    if (isset($_GET['user_id'])) {
+        $userId = intval($_GET['user_id']);
     }
 
     // Get the tweets likes from the logged in user. 

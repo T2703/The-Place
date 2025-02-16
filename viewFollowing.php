@@ -26,8 +26,13 @@
         exit;
     }
     else {
-        $userId = $_SESSION['user_id'];
+        $loggedInUserId = $_SESSION['user_id'];
     }
+
+    if (isset($_GET['user_id'])) {
+        $userId = intval($_GET['user_id']);
+    }
+    echo 'Userid', $userId;
 
     // Get the followers from the profile
     $sql = "
