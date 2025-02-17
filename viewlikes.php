@@ -13,6 +13,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Likes</title>
+    <link rel="stylesheet" href="styles/home.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
 </head>
 <body>
     Your likes <br>
@@ -60,11 +62,12 @@
 
     // Handle Enter key to go to search results page
     document.getElementById("search").addEventListener("keypress", function (event) {
+        let profileUserId = new URLSearchParams(window.location.search).get('user_id'); 
         if (event.key === "Enter") {
             event.preventDefault(); // Prevent form submission (if inside a form)
             let query = this.value.trim();
             if (query.length > 0) {
-                window.location.href = "searchResults.php?q=" + encodeURIComponent(query);
+                window.location.href = `searchResultsLikes.php?q=${encodeURIComponent(query)}&user_id=${profileUserId}`;
             }
         }
     });
@@ -102,16 +105,16 @@
 
     // Check if there is any tweets
     if (mysqli_num_rows($result) > 0) {
-        echo "Your posts";
-
         // Fetching each tweet from the database. 
         while ($row = mysqli_fetch_assoc($result)) {
             // Tweet information 
-            echo "<div style='border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;'>";
+            echo "<div class='post'>";
+            echo "<div style='display: flex; align-items: center;'>";
+            echo "</div>";
             echo "<p><strong>{$row['username']}</strong></p>";
-            echo "<p><strong>Title:</strong> {$row['title']}</p>";
-            echo "<p>{$row['content']}</p>";
-            echo "<p><em>Posted on {$row['created_at']}</em></p>";
+            echo "<p class='title'>{$row['title']}</p>";
+            echo "<p class='content'>{$row['content']}</p>";
+            echo "<p class='meta'>Posted on " . date("F d, Y", strtotime($row['created_at'])) . "</p>";
             echo "</div>";
 
         }
