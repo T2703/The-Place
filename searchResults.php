@@ -1,3 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles/home.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <title>Search Results</title>
+</head>
+<body>
+    
+</body>
+</html>
 <?php
     include("database.php");
 
@@ -58,39 +71,42 @@
 
     if (mysqli_num_rows($result) > 0) {
         while ($row = mysqli_fetch_assoc($result)) {
-            echo "<div style='border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;'>";
-            echo "<p><a href='profile.php?user_id={$row['user_id']}' style='color: blue; text-decoration: none;'>{$row['username']}</a></p>";
-            echo "<p><strong>Title:</strong> {$row['title']}</p>";
-            echo "<p>{$row['content']}</p>";
-            echo "<p><em>Posted on {$row['created_at']}</em></p>";
-            echo "<p><strong>Likes:</strong> {$row['like_count']} | <strong>Dislikes:</strong> {$row['dislike_count']}</p> <strong>Comments:</strong> {$row['comments_count']}</p>";
-            echo "</div>";
-    
-            // Profile pic
+            echo "<div class='post'>";
+            echo "<div style='display: flex; align-items: center;'>";
+
             if (!empty($row['pfp'])) {
-                echo '<img src="Handlers/displayPFPHandler.php?user_id=' . $row['user_id'] . '" width="150" height="150" style="border-radius: 100%;">';
+                echo "<img src='Handlers/displayPFPHandler.php?user_id={$row['user_id']}' class='pfp'>";
             }
-            else {
-                echo "<p>No profile picture uploaded.</p>";
-            }
+
+            echo "<a href='profile.php?user_id={$row['user_id']}' class='username'>{$row['username']}</a>";
+            echo "</div>";
+
+            echo "<p class='title'>{$row['title']}</p>";
+            echo "<p class='content'>{$row['content']}</p>";
+            echo "<p class='meta'>Posted on " . date("F d, Y", strtotime($row['created_at'])) . "</p>";
+            echo "<p class='meta'><strong>Likes:</strong> {$row['like_count']} | <strong>Dislikes:</strong> {$row['dislike_count']} | <strong>Comments:</strong> {$row['comments_count']}</p>";
             
             // Like button 
-            echo "<form method='post' action='Handlers/likeHandler.php' style='margin-top: 10px;'>";
+            echo "<div class='button-group'>";
+            echo "<form method='post' action='Handlers/likeHandler.php'>";
             echo "<input type='hidden' name='tweet_id' value='{$row['id']}'>";
-            echo "<button type='submit' name='like' style='color: white; background-color: green; border: none; padding: 5px 10px; cursor: pointer;'>Like</button>";
+            echo "<button type='submit' name='like' class='like-btn'>Like</button>";
             echo "</form>";
-        
+
             // Dislike button 
-            echo "<form method='post' action='Handlers/dislikeHandler.php' style='margin-top: 10px;'>";
+            echo "<form method='post' action='Handlers/dislikeHandler.php'>";
             echo "<input type='hidden' name='tweet_id' value='{$row['id']}'>";
-            echo "<button type='submit' name='dislike' style='color: white; background-color: red; border: none; padding: 5px 10px; cursor: pointer;'>Dislike</button>";
+            echo "<button type='submit' name='dislike' class='dislike-btn'>Dislike</button>";
             echo "</form>";
     
             // Comment button 
-            echo "<form method='get' action='comment.php' style='margin-top: 10px;'>";
+            echo "<form method='get' action='comment.php'>";
             echo "<input type='hidden' name='tweet_id' value='{$row['id']}'>";
-            echo "<button type='submit' name='comment' style='color: white; background-color: blue; border: none; padding: 5px 10px; cursor: pointer;'>Comment</button>";
+            echo "<button type='submit' name='comment' class='comment-btn'>Comment</button>";
             echo "</form>";
+
+            echo "</div>"; // Close button group
+            echo "</div>"; // Close post
         }
     } else {
         echo "<p>No results found.</p>";

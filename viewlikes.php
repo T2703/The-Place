@@ -90,12 +90,15 @@
     }
 
     // Get the tweets likes from the logged in user. 
-    $sql = "SELECT tweets.id, tweets.content, tweets.title, tweets.created_at, users.username 
+    $sql = "SELECT tweets.id, tweets.content, tweets.title, tweets.created_at, users.username, users.pfp, users.id as user_id,
+            (SELECT COUNT(*) FROM tweet_likes WHERE tweet_likes.tweet_id = tweets.id) AS like_count,
+            (SELECT COUNT(*) FROM tweet_dislikes WHERE tweet_dislikes.tweet_id = tweets.id) AS dislike_count,
+            (SELECT COUNT(*) FROM comments WHERE comments.tweet_id = tweets.id) AS comments_count
             FROM tweet_likes
             JOIN tweets ON tweet_likes.tweet_id = tweets.id
             JOIN users ON tweets.user_id = users.id
             WHERE tweet_likes.user_id = ?
-            ORDER BY tweets.created_at DESC";
+            ORDER BY tweet_likes.created_at DESC";
     
     // Needed for filtering the data (i is for injection we to prevent that)
     $stmt = mysqli_prepare($connection, $sql);
@@ -110,12 +113,37 @@
             // Tweet information 
             echo "<div class='post'>";
             echo "<div style='display: flex; align-items: center;'>";
+
+            if (!empty($row['pfp'])) {
+                echo "<img src='Handlers/displayPFPHandler.php?user_id={$row['user_id']}' class='pfp'>";
+            }
+
+            echo "<a href='profile.php?user_id={$row['user_id']}' class='username'>{$row['username']}</a>";
             echo "</div>";
-            echo "<p><strong>{$row['username']}</strong></p>";
+
             echo "<p class='title'>{$row['title']}</p>";
             echo "<p class='content'>{$row['content']}</p>";
             echo "<p class='meta'>Posted on " . date("F d, Y", strtotime($row['created_at'])) . "</p>";
-            echo "</div>";
+            echo "<p class='meta'><strong>Likes:</strong> {$row['like_count']} | <strong>Dislikes:</strong> {$row['dislike_count']} | <strong>Comments:</strong> {$row['comments_count']}</p>";
+
+            echo "<div class='button-group'>";
+            echo "<form method='post' action='Handlers/likeHandler.php'>";
+            echo "<input type='hidden' name='tweet_id' value='{$row['id']}'>";
+            echo "<button type='submit' name='like' class='like-btn'>Like</button>";
+            echo "</form>";
+    
+            echo "<form method='post' action='Handlers/dislikeHandler.php'>";
+            echo "<input type='hidden' name='tweet_id' value='{$row['id']}'>";
+            echo "<button type='submit' name='dislike' class='dislike-btn'>Dislike</button>";
+            echo "</form>";
+    
+            echo "<form method='get' action='comment.php'>";
+            echo "<input type='hidden' name='tweet_id' value='{$row['id']}'>";
+            echo "<button type='submit' name='comment' class='comment-btn'>Comment</button>";
+            echo "</form>";
+
+            echo "</div>"; // Close button group
+            echo "</div>"; // Close post
 
         }
     }
