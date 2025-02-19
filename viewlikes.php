@@ -81,30 +81,68 @@
         echo "You need to log in to post";
         exit;
     }
-    else {
-        $loggedinUserId = $_SESSION['user_id'];
-    }
+    
+    $loggedinUserId = $_SESSION['user_id'];
 
     if (isset($_GET['user_id'])) {
         $userId = intval($_GET['user_id']);
     }
 
     // Get the tweets likes from the logged in user. 
-    $sql = "SELECT tweets.id, tweets.content, tweets.title, tweets.created_at, users.username, users.pfp, users.id as user_id,
-            (SELECT COUNT(*) FROM tweet_likes WHERE tweet_likes.tweet_id = tweets.id) AS like_count,
-            (SELECT COUNT(*) FROM tweet_dislikes WHERE tweet_dislikes.tweet_id = tweets.id) AS dislike_count,
-            (SELECT COUNT(*) FROM comments WHERE comments.tweet_id = tweets.id) AS comments_count
-            FROM tweet_likes
-            JOIN tweets ON tweet_likes.tweet_id = tweets.id
-            JOIN users ON tweets.user_id = users.id
-            WHERE tweet_likes.user_id = ?
-            ORDER BY tweet_likes.created_at DESC";
+$sql = "SELECT tweets.id, tweets.content, tweets.title, tweets.created_at, 
+                users.username, users.pfp, users.id AS user_id,
+                (SELECT COUNT(*) FROM tweet_likes WHERE tweet_likes.tweet_id = tweets.id) AS like_count,
+                (SELECT COUNT(*) FROM tweet_dislikes WHERE tweet_dislikes.tweet_id = tweets.id) AS dislike_count,
+                (SELECT COUNT(*) FROM comments WHERE comments.tweet_id = tweets.id) AS comments_count
+        FROM tweet_likes
+        JOIN tweets ON tweet_likes.tweet_id = tweets.id
+        JOIN users ON tweets.user_id = users.id
+        LEFT JOIN blocks AS b1 ON (b1.blocker_id = ? AND b1.blocked_id = tweets.user_id) 
+        LEFT JOIN blocks AS b2 ON (b2.blocker_id = tweets.user_id AND b2.blocked_id = ?) 
+        WHERE tweet_likes.user_id = ?
+        AND b1.blocked_id IS NULL  
+        AND b2.blocked_id IS NULL  
+        ORDER BY tweet_likes.created_at DESC";
     
     // Needed for filtering the data (i is for injection we to prevent that)
     $stmt = mysqli_prepare($connection, $sql);
-    mysqli_stmt_bind_param($stmt, "i", $userId);
+    mysqli_stmt_bind_param($stmt, "iii", $userId, $userId, $userId);
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
+
+    // Block operations & code
+    $sqlCheckBlock = "SELECT * FROM blocks WHERE (blocker_id = ? AND blocked_id = ?) OR (blocker_id = ? AND blocked_id = ?)";
+    $blockStmt = mysqli_prepare($connection, $sqlCheckBlock);
+    mysqli_stmt_bind_param($blockStmt, "iiii", $loggedInUserId, $userId, $userId, $loggedInUserId);
+    mysqli_stmt_execute($blockStmt);
+    $blockResult = mysqli_stmt_get_result($blockStmt);
+    $isBlocked = mysqli_num_rows($blockResult) > 0;
+    mysqli_stmt_close($blockStmt);
+
+    // Private data fetching
+    $privacySql = "SELECT privacy_type, is_private FROM user_privacy WHERE user_id = ?";
+    $privacyStmt = mysqli_prepare($connection, $privacySql);
+    mysqli_stmt_bind_param($privacyStmt, "i", $userId);
+    mysqli_stmt_execute($privacyStmt);
+    $privacyResult = mysqli_stmt_get_result($privacyStmt);
+
+    $privacySettings = [];
+    while ($privacyRow = mysqli_fetch_assoc($privacyResult)) {
+        $privacySettings[$privacyRow['privacy_type']] = $privacyRow['is_private'];
+    }
+
+    $privacyLikes = $privacySettings['likes'] ?? 0;
+
+    if ($isBlocked) {
+        echo "You are blocked from this user";
+        exit;
+    }
+
+    // or if it is private
+    if ($privacyLikes == 0 && $loggedinUserId != $userId) {
+        echo "Private Likes";
+        exit;
+    }
 
     // Check if there is any tweets
     if (mysqli_num_rows($result) > 0) {
