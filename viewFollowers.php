@@ -41,20 +41,19 @@
             users.id AS follower_id, 
             users.username, 
             users.pfp
-        FROM 
-            follows
-        JOIN 
-            users 
-        ON 
-            follows.follower_id = users.id
-        WHERE 
-            follows.following_id = ?
-        ORDER BY
-            users.username ASC
+        FROM follows
+        JOIN users ON follows.follower_id = users.id
+        LEFT JOIN blocks AS b1 ON (b1.blocker_id = ? AND b1.blocked_id = users.id) 
+        LEFT JOIN blocks AS b2 ON (b2.blocker_id = users.id AND b2.blocked_id = ?)  
+        WHERE follows.following_id = ?
+        AND b1.blocked_id IS NULL  
+        AND b2.blocked_id IS NULL  
+        ORDER BY users.username ASC
     ";
+
     
     $stmt = mysqli_prepare($connection, $sql);
-    mysqli_stmt_bind_param($stmt, "i", $userId);
+    mysqli_stmt_bind_param($stmt, "iii", $loggedInUserId, $loggedInUserId, $userId);
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
 
@@ -89,8 +88,6 @@
     }
 
     // Default values if privacy settings don't exist yet
-    $privacyLikes = $privacySettings['likes'] ?? 0;
-    $privacyFollows = $privacySettings['follows'] ?? 0;
     $privacyFollowers = $privacySettings['followers'] ?? 0;
 
     // First checked if they are blocked
@@ -100,7 +97,7 @@
     }
 
     // or if it is private
-    if ($privacyFollowers == 1) {
+    if ($privacyFollowers == 1 && $loggedInUserId != $userId) {
         echo "Private Followers";
         exit;
     }
@@ -111,11 +108,6 @@
 
         // Fetching each tweet from the database. 
         while ($row = mysqli_fetch_assoc($result)) {
-
-            if ($isBlocked) {
-                echo "You are blocked from this user";
-                break;
-            }
 
             // Tweet information 
             echo "<div class='post'>";
