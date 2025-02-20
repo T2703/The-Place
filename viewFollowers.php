@@ -58,13 +58,16 @@
     $result = mysqli_stmt_get_result($stmt);
 
     // Follow operations & code
-    $sqlCheckFollow = "SELECT * FROM follows WHERE follower_id = ? AND following_id = ?";
+    /*$sqlCheckFollow = "SELECT * FROM follows WHERE follower_id = ? AND following_id = ?";
     $followStmt = mysqli_prepare($connection, $sqlCheckFollow);
     mysqli_stmt_bind_param($followStmt, "ii", $loggedInUserId, $userId);
     mysqli_stmt_execute($followStmt);
     $followResult = mysqli_stmt_get_result($followStmt);
-    $isFollowing = mysqli_num_rows($followResult) > 0;
-    mysqli_stmt_close($followStmt);
+    $rowCount = mysqli_num_rows($followResult);
+    $isFollowing = $rowCount > 0;
+    mysqli_stmt_close($followStmt);*/
+    
+    
 
     // Block operations & code
     $sqlCheckBlock = "SELECT * FROM blocks WHERE (blocker_id = ? AND blocked_id = ?) OR (blocker_id = ? AND blocked_id = ?)";
@@ -109,6 +112,15 @@
         // Fetching each tweet from the database. 
         while ($row = mysqli_fetch_assoc($result)) {
 
+            // Some stuff
+            $sqlCheckFollow = "SELECT * FROM follows WHERE follower_id = ? AND following_id = ?";
+            $followStmt = mysqli_prepare($connection, $sqlCheckFollow);
+            mysqli_stmt_bind_param($followStmt, "ii", $loggedInUserId, $row['follower_id']);
+            mysqli_stmt_execute($followStmt);
+            $followResult = mysqli_stmt_get_result($followStmt);
+            $rowCount = mysqli_num_rows($followResult);
+            $isFollowing = $rowCount > 0;
+
             // Tweet information 
             echo "<div class='post'>";
             echo "<div style='display: flex; align-items: center;'>";
@@ -121,25 +133,27 @@
             echo "</div>";
 
             // Display the appropriate button
-            if ($isFollowing) {
-                // Unfollow
-                echo "<form method='post' action='Handlers/followHandler.php'>";
-                echo "<input type='hidden' name='following_id' value='{$userId}'>";
-                echo "<button type='submit' name='unfollow' style='background-color: red; color: white;'>Unfollow</button>";
-                echo "</form>";
-            } 
-            else {
-                // Follow
-                echo "<form method='post' action='Handlers/followHandler.php'>";
-                echo "<input type='hidden' name='following_id' value='{$userId}'>";
-                echo "<button type='submit' name='follow' style='background-color: green; color: white;'>Follow</button>";
-                echo "</form>";
-
-                // Block
-                echo "<form method='post' action='Handlers/blockHandler.php'>";
-                echo "<input type='hidden' name='block_id' value='{$userId}'>";
-                echo "<button type='submit' name='block' style='background-color: green; color: white;'>block</button>";
-                echo "</form>";
+            if ($loggedInUserId != $row['follower_id']) {
+                if ($isFollowing) {
+                    // Unfollow
+                    echo "<form method='post' action='Handlers/followHandler.php'>";
+                    echo "<input type='hidden' name='following_id' value='{$row['follower_id']}'>";
+                    echo "<button type='submit' name='unfollow' style='background-color: red; color: white;'>Unfollow</button>";
+                    echo "</form>";
+                } 
+                else {
+                    // Follow
+                    echo "<form method='post' action='Handlers/followHandler.php'>";
+                    echo "<input type='hidden' name='following_id' value='{$row['follower_id']}'>";
+                    echo "<button type='submit' name='follow' style='background-color: green; color: white;'>Follow</button>";
+                    echo "</form>";
+    
+                    // Block
+                    echo "<form method='post' action='Handlers/blockHandler.php'>";
+                    echo "<input type='hidden' name='block_id' value='{$userId}'>";
+                    echo "<button type='submit' name='block' style='background-color: green; color: white;'>block</button>";
+                    echo "</form>";
+                }
             }
 
         }
@@ -150,5 +164,6 @@
 
     // Close the database connection
     mysqli_stmt_close($stmt);
+    mysqli_stmt_close($followStmt);
     mysqli_close($connection);
 ?>

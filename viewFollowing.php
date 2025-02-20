@@ -73,6 +73,13 @@
     mysqli_stmt_bind_param($blockStmt, "iiii", $loggedInUserId, $userId, $userId, $loggedInUserId);
     mysqli_stmt_execute($blockStmt);
     $blockResult = mysqli_stmt_get_result($blockStmt);
+    if (mysqli_num_rows($blockResult) === 0) {
+        echo "No blocked users found!";
+        echo $loggedInUserId;
+        echo $userId;
+    } else {
+        echo "Blocked users exist!";
+    }
     $isBlocked = mysqli_num_rows($blockResult) > 0;
     mysqli_stmt_close($blockStmt);
 
