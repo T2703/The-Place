@@ -113,21 +113,20 @@ $sql = "SELECT tweets.id, tweets.content, tweets.title, tweets.created_at,
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
 
-    // Block operations & code
-    $sqlCheckBlock = "SELECT * FROM blocks WHERE (blocker_id = ? AND blocked_id = ?) OR (blocker_id = ? AND blocked_id = ?)";
-    $blockStmt = mysqli_prepare($connection, $sqlCheckBlock);
-    mysqli_stmt_bind_param($blockStmt, "iiii", $loggedInUserId, $userId, $userId, $loggedInUserId);
-    mysqli_stmt_execute($blockStmt);
-    $blockResult = mysqli_stmt_get_result($blockStmt);
-    $isBlocked = mysqli_num_rows($blockResult) > 0;
-    mysqli_stmt_close($blockStmt);
-
     // Private data fetching
     $privacySql = "SELECT privacy_type, is_private FROM user_privacy WHERE user_id = ?";
     $privacyStmt = mysqli_prepare($connection, $privacySql);
     mysqli_stmt_bind_param($privacyStmt, "i", $userId);
     mysqli_stmt_execute($privacyStmt);
     $privacyResult = mysqli_stmt_get_result($privacyStmt);
+
+    // Block operations & code (for the user)
+    $sqlCheckBlock = "SELECT * FROM blocks WHERE (blocker_id = ? AND blocked_id = ?) OR (blocker_id = ? AND blocked_id = ?)";
+    $blockStmt = mysqli_prepare($connection, $sqlCheckBlock);
+    mysqli_stmt_bind_param($blockStmt, "iiii", $loggedInUserId, $row['user_id'], $row['user_id'], $loggedInUserId);
+    mysqli_stmt_execute($blockStmt);
+    $blockResult = mysqli_stmt_get_result($blockStmt);
+    $isBlocked = mysqli_num_rows($blockResult) > 0;
 
     $privacySettings = [];
     while ($privacyRow = mysqli_fetch_assoc($privacyResult)) {
@@ -151,40 +150,53 @@ $sql = "SELECT tweets.id, tweets.content, tweets.title, tweets.created_at,
     if (mysqli_num_rows($result) > 0) {
         // Fetching each tweet from the database. 
         while ($row = mysqli_fetch_assoc($result)) {
-            // Tweet information 
-            echo "<div class='post'>";
-            echo "<div style='display: flex; align-items: center;'>";
+            $userid = $row['user_id']; // Get tweet author's ID
 
-            if (!empty($row['pfp'])) {
-                echo "<img src='Handlers/displayPFPHandler.php?user_id={$row['user_id']}' class='pfp'>";
+            $sqlCheckBlock2 = "SELECT * FROM blocks 
+                               WHERE (blocker_id = ? AND blocked_id = ?) 
+                                  OR (blocker_id = ? AND blocked_id = ?)";
+            $blockStmt2 = mysqli_prepare($connection, $sqlCheckBlock2);
+            mysqli_stmt_bind_param($blockStmt2, "iiii", $loggedinUserId, $userid, $userid, $loggedinUserId);
+            mysqli_stmt_execute($blockStmt2);
+            $blockResult2 = mysqli_stmt_get_result($blockStmt2);
+            $isBlocked2 = mysqli_num_rows($blockResult2) > 0;
+
+            if (!$isBlocked2) {
+                // Tweet information 
+                echo "<div class='post'>";
+                echo "<div style='display: flex; align-items: center;'>";
+
+                if (!empty($row['pfp'])) {
+                    echo "<img src='Handlers/displayPFPHandler.php?user_id={$row['user_id']}' class='pfp'>";
+                }
+
+                echo "<a href='profile.php?user_id={$row['user_id']}' class='username'>{$row['username']}</a>";
+                echo "</div>";
+
+                echo "<p class='title'>{$row['title']}</p>";
+                echo "<p class='content'>{$row['content']}</p>";
+                echo "<p class='meta'>Posted on " . date("F d, Y", strtotime($row['created_at'])) . "</p>";
+                echo "<p class='meta'><strong>Likes:</strong> {$row['like_count']} | <strong>Dislikes:</strong> {$row['dislike_count']} | <strong>Comments:</strong> {$row['comments_count']}</p>";
+
+                echo "<div class='button-group'>";
+                echo "<form method='post' action='Handlers/likeHandler.php'>";
+                echo "<input type='hidden' name='tweet_id' value='{$row['id']}'>";
+                echo "<button type='submit' name='like' class='like-btn'>Like</button>";
+                echo "</form>";
+        
+                echo "<form method='post' action='Handlers/dislikeHandler.php'>";
+                echo "<input type='hidden' name='tweet_id' value='{$row['id']}'>";
+                echo "<button type='submit' name='dislike' class='dislike-btn'>Dislike</button>";
+                echo "</form>";
+        
+                echo "<form method='get' action='comment.php'>";
+                echo "<input type='hidden' name='tweet_id' value='{$row['id']}'>";
+                echo "<button type='submit' name='comment' class='comment-btn'>Comment</button>";
+                echo "</form>";
+
+                echo "</div>"; // Close button group
+                echo "</div>"; // Close post
             }
-
-            echo "<a href='profile.php?user_id={$row['user_id']}' class='username'>{$row['username']}</a>";
-            echo "</div>";
-
-            echo "<p class='title'>{$row['title']}</p>";
-            echo "<p class='content'>{$row['content']}</p>";
-            echo "<p class='meta'>Posted on " . date("F d, Y", strtotime($row['created_at'])) . "</p>";
-            echo "<p class='meta'><strong>Likes:</strong> {$row['like_count']} | <strong>Dislikes:</strong> {$row['dislike_count']} | <strong>Comments:</strong> {$row['comments_count']}</p>";
-
-            echo "<div class='button-group'>";
-            echo "<form method='post' action='Handlers/likeHandler.php'>";
-            echo "<input type='hidden' name='tweet_id' value='{$row['id']}'>";
-            echo "<button type='submit' name='like' class='like-btn'>Like</button>";
-            echo "</form>";
-    
-            echo "<form method='post' action='Handlers/dislikeHandler.php'>";
-            echo "<input type='hidden' name='tweet_id' value='{$row['id']}'>";
-            echo "<button type='submit' name='dislike' class='dislike-btn'>Dislike</button>";
-            echo "</form>";
-    
-            echo "<form method='get' action='comment.php'>";
-            echo "<input type='hidden' name='tweet_id' value='{$row['id']}'>";
-            echo "<button type='submit' name='comment' class='comment-btn'>Comment</button>";
-            echo "</form>";
-
-            echo "</div>"; // Close button group
-            echo "</div>"; // Close post
 
         }
     }

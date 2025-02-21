@@ -150,7 +150,7 @@
     
                     // Block
                     echo "<form method='post' action='Handlers/blockHandler.php'>";
-                    echo "<input type='hidden' name='block_id' value='{$userId}'>";
+                    echo "<input type='hidden' name='block_id' value='{$row['follower_id']}'>";
                     echo "<button type='submit' name='block' style='background-color: green; color: white;'>block</button>";
                     echo "</form>";
                 }
