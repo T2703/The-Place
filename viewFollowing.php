@@ -17,6 +17,58 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
 </head>
 <body>
+    <input type="text" id="search" placeholder="Search following..." style="padding: 5px; width: 300px;">
+    <div id="searchResults" style="border: 1px solid #ccc; display: none; position: absolute; background: white; width: 300px;"></div>
+
+    <script>
+    document.getElementById("search").addEventListener("input", function () {
+        let query = this.value.trim();
+        let resultsDiv = document.getElementById("searchResults");
+        let profileUserId = new URLSearchParams(window.location.search).get('user_id'); 
+
+        if (query.length > 0) {
+            fetch(`Handlers/searchHandlerFollowing.php?q=${encodeURIComponent(query)}&user_id=${profileUserId}`)
+                .then(response => response.json())
+                .then(data => {
+                    resultsDiv.innerHTML = "";
+                    resultsDiv.style.display = "block"; 
+
+                    if (data.length === 0) {
+                        resultsDiv.innerHTML = "<p>No results found</p>";
+                    } else {
+                        data.forEach(item => {
+                            let div = document.createElement("div");
+                            div.style.padding = "10px";
+                            div.style.cursor = "pointer";
+                            div.style.borderBottom = "1px solid #ccc";
+
+                            if (item.type === "user") {
+                                div.innerHTML = `<strong>User:</strong> ${item.title}`;
+                                div.onclick = () => window.location.href = `profile.php?user_id=${item.id}`;
+                            }
+
+                            resultsDiv.appendChild(div);
+                        });
+                    }
+                })
+                .catch(error => console.error("Error fetching search results:", error));
+        } else {
+            resultsDiv.style.display = "none";
+        }
+    });
+
+    // Handle Enter key to go to search results page
+    document.getElementById("search").addEventListener("keypress", function (event) {
+        let profileUserId = new URLSearchParams(window.location.search).get('user_id'); 
+        if (event.key === "Enter") {
+            event.preventDefault(); // Prevent form submission (if inside a form)
+            let query = this.value.trim();
+            if (query.length > 0) {
+                window.location.href = `searchResultsFollowing.php?q=${encodeURIComponent(query)}&user_id=${profileUserId}`;
+            }
+        }
+    });
+</script>
 </body>
 </html>
 
