@@ -12,12 +12,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Followers</title>
     <link rel="stylesheet" href="styles/home.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
 </head>
 <body>
-    Your followers <br>
+    <input type="text" id="search" placeholder="Search followers..." style="padding: 5px; width: 300px;">
+    <div id="searchResults" style="border: 1px solid #ccc; display: none; position: absolute; background: white; width: 300px;"></div>
+
+    <script>
+    document.getElementById("search").addEventListener("input", function () {
+        let query = this.value.trim();
+        let resultsDiv = document.getElementById("searchResults");
+        let profileUserId = new URLSearchParams(window.location.search).get('user_id'); 
+
+        if (query.length > 0) {
+            fetch(`Handlers/searchHandlerFollowers.php?q=${encodeURIComponent(query)}&user_id=${profileUserId}`)
+                .then(response => response.json())
+                .then(data => {
+                    resultsDiv.innerHTML = "";
+                    resultsDiv.style.display = "block"; 
+
+                    if (data.length === 0) {
+                        resultsDiv.innerHTML = "<p>No results found</p>";
+                    } else {
+                        data.forEach(item => {
+                            let div = document.createElement("div");
+                            div.style.padding = "10px";
+                            div.style.cursor = "pointer";
+                            div.style.borderBottom = "1px solid #ccc";
+
+                            if (item.type === "user") {
+                                div.innerHTML = `<strong>User:</strong> ${item.title}`;
+                                div.onclick = () => window.location.href = `profile.php?user_id=${item.id}`;
+                            }
+
+                            resultsDiv.appendChild(div);
+                        });
+                    }
+                })
+                .catch(error => console.error("Error fetching search results:", error));
+        } else {
+            resultsDiv.style.display = "none";
+        }
+    });
+
+    // Handle Enter key to go to search results page
+    document.getElementById("search").addEventListener("keypress", function (event) {
+        let profileUserId = new URLSearchParams(window.location.search).get('user_id'); 
+        if (event.key === "Enter") {
+            event.preventDefault(); // Prevent form submission (if inside a form)
+            let query = this.value.trim();
+            if (query.length > 0) {
+                window.location.href = `searchResultsFollowers.php?q=${encodeURIComponent(query)}&user_id=${profileUserId}`;
+            }
+        }
+    });
+</script>
 </body>
 </html>
 
@@ -107,8 +158,6 @@
 
     // Check if there is any tweets
     if (mysqli_num_rows($result) > 0) {
-        echo "Your posts";
-
         // Fetching each tweet from the database. 
         while ($row = mysqli_fetch_assoc($result)) {
 
@@ -156,6 +205,21 @@
                 }
             }
 
+            // Update button 
+            if ($loggedInUserId == $row['follower_id']) {
+                // Update button 
+                echo "<form method='get' action='Handlers/profileUpdateHandler.php' style='margin-top: 10px;'>";
+                echo "<input type='hidden' name='tweet_id' value='{$row['follower_id']}'>";
+                echo "<button type='submit' name='update' class='like-btn' style='color: white; background-color: green; border: none; cursor: pointer;'>Edit</button>";
+                echo "</form>";
+    
+                // Delete button 
+                echo "<form method='post' action='Handlers/profileDeleteHandler.php' style='margin-top: 10px;'>";
+                echo "<input type='hidden' name='tweet_id' value='{$row['follower_id']}'>"; 
+                echo "<button type='submit' name='delete' class='dislike-btn' style='color: white; background-color: red; border: none; cursor: pointer;'>Delete</button>";
+                echo "</form>";
+            }
+            echo "</div>"; // Close post
         }
     }
     else {

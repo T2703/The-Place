@@ -139,6 +139,20 @@
                     echo "</form>";
                 }
             }
+            // Update button 
+            if ($loggedInUserId == $row['follower_id']) {
+                // Update button 
+                echo "<form method='get' action='Handlers/profileUpdateHandler.php' style='margin-top: 10px;'>";
+                echo "<input type='hidden' name='tweet_id' value='{$row['follower_id']}'>";
+                echo "<button type='submit' name='update' class='like-btn' style='color: white; background-color: green; border: none; cursor: pointer;'>Edit</button>";
+                echo "</form>";
+    
+                // Delete button 
+                echo "<form method='post' action='Handlers/profileDeleteHandler.php' style='margin-top: 10px;'>";
+                echo "<input type='hidden' name='tweet_id' value='{$row['follower_id']}'>"; 
+                echo "<button type='submit' name='delete' class='dislike-btn' style='color: white; background-color: red; border: none; cursor: pointer;'>Delete</button>";
+                echo "</form>";
+            }
 
         }
     }
