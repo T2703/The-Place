@@ -17,7 +17,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
 </head>
 <body>
-    What's on your mind today? <br>
     <div class="search-container">
         <input type="text" id="search" placeholder="Search posts or users...">
         <div id="searchResults" class="search-results"></div>

@@ -13,6 +13,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile</title>
+    <link rel="stylesheet" href="styles/profile.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
     <style>
         /* Modal styles */
         .modal {
@@ -162,28 +164,30 @@
 
         // Check if the user exists and fetch the data
         if ($row = mysqli_fetch_assoc($result)) {
-            echo "<div style='border: 1px solid #ccc; padding: 10px; margin-bottom: 20px;'>";
-            echo "<p><strong>Username:</strong> {$row['username']}</p>";
-            echo "<p><strong>Email:</strong> {$row['email']}</p>";
-            echo "<p><strong>Posts:</strong> <a href='profilePosts.php?user_id={$row['id']}' style='color: blue; text-decoration: none;'>{$row['post_count']}</a></p>";
+            echo "<div class='profile-container'>";
+            // Profile pic
+            if (!empty($row['pfp'])) {
+                echo "<div class='profile-picture'>";
+                echo '<img src="Handlers/displayPFPHandler.php?user_id=' . $row['id'] . '" width="150" height="150" style="border-radius: 100%;">';
+                echo "</div>";
+            }
+            else {
+                echo "<p>No profile picture uploaded.</p>";
+            }
+            echo "<div class='profile-header'>";
+            echo "<p class='profile-info'><strong>Username:</strong> {$row['username']}</p>";
+            echo "<p class='profile-info'><strong>Email:</strong> {$row['email']}</p>";
+            echo "<p class='profile-info'><strong>Posts:</strong> <a href='profilePosts.php?user_id={$row['id']}' style='color: blue; text-decoration: none;'>{$row['post_count']}</a></p>";
             
             if ($privacyLikes == 0  || $loggedInUserId == $userId) {
-                echo "<p><strong>Likes:</strong> <a href='viewlikes.php?user_id={$row['id']}' style='color: blue; text-decoration: none;'>{$row['liked_post_count']}</a></p>";
+                echo "<p class='profile-info'><strong>Likes:</strong> <a href='viewlikes.php?user_id={$row['id']}' style='color: blue; text-decoration: none;'>{$row['liked_post_count']}</a></p>";
             }
             else {
                 echo "Private likes";
             }
 
-            echo "<p><strong>Member Since:</strong> " . date("F d, Y", strtotime($row['reg_date'])) . "</p>";
+            echo "<p class='profile-info'><strong>Member Since:</strong> " . date("F d, Y", strtotime($row['reg_date'])) . "</p>";
             echo "</div>";
-
-            // Profile pic
-            if (!empty($row['pfp'])) {
-                echo '<img src="Handlers/displayPFPHandler.php?user_id=' . $row['id'] . '" width="150" height="150" style="border-radius: 100%;">';
-            }
-            else {
-                echo "<p>No profile picture uploaded.</p>";
-            }
 
             if ($privacyFollowers == 0  || $loggedInUserId == $userId) {
                 echo "<p><strong>Followers:</strong> <a href='viewFollowers.php?user_id={$row['id']}' style='color: blue; text-decoration: none;'>{$row['follower_count']}</a></p>";
@@ -202,27 +206,32 @@
             // Show buttons if it's their own account
             if ($loggedInUserId == $row['id']) {
                 // Delete
+                echo "<div class='button-group'>";
                 echo "<button onclick='openModal(\"{$row['id']}\", \"{$row['email']}\")' style='color: white; background-color: blue; border: none; padding: 5px 10px;'>Delete</button>";
 
                 // Update 
-                echo "<form method='get' action='profileUpdate.php' style='margin-top: 10px;'>";
+                echo "<form method='get' action='profileUpdate.php'>";
                 echo "<button type='submit' style='color: white; background-color: green; border: none; padding: 5px 10px; cursor: pointer;'>Update</button>";
                 echo "</form>";
 
                 echo "<a href='viewBlocks.php'>Blocked</a>"; 
+                echo "</div>";
             }
             // Show the follow button if not.
             else {
                 // Display the appropriate button
                 if ($isFollowing) {
-                    // Unfollow
+                    // Unfollow 
+                    echo "<div class='button-group'>";           
                     echo "<form method='post' action='Handlers/followHandler.php'>";
                     echo "<input type='hidden' name='following_id' value='{$userId}'>";
                     echo "<button type='submit' name='unfollow' style='background-color: red; color: white;'>Unfollow</button>";
                     echo "</form>";
+                    echo "</div>";
                 } 
                 else {
                     // Follow
+                    echo "<div class='button-group'>";
                     echo "<form method='post' action='Handlers/followHandler.php'>";
                     echo "<input type='hidden' name='following_id' value='{$userId}'>";
                     echo "<button type='submit' name='follow' style='background-color: green; color: white;'>Follow</button>";
@@ -233,6 +242,7 @@
                     echo "<input type='hidden' name='block_id' value='{$userId}'>";
                     echo "<button type='submit' name='block' style='background-color: green; color: white;'>block</button>";
                     echo "</form>";
+                    echo "</div>";
                 }
             }
             
