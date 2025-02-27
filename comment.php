@@ -13,6 +13,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Comment on Post</title>
+    <link rel="stylesheet" href="styles/comment.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
     <style>
         /* Modal styles */
         .modal {
@@ -166,43 +168,41 @@
             while ($row = mysqli_fetch_assoc($result)) {
                 // Tweet information 
                 if (!$postShown) {
-                    echo "<div style='border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;'>";
+                    echo "<div class='container'>";
+                    echo "<div class='post'>";
                     echo "<p><strong>Post by: {$row['tweet_author']}</strong></p>";
                     echo "<p><strong>Title:</strong> {$row['tweet_title']}</p>";
                     echo "<p>{$row['tweet_content']}</p>";
                     echo "<p><em>Posted on {$row['tweet_created_at']}</em></p>";
-                    echo "</div>";
 
+                    echo "<div class='buttons'>";
                     // Show delete button for post owner
                     if ($userId == $row['tweet_owner_id']) {
                         echo "<form method='post' action='Handlers/deleteTweetHandler.php' style='display:inline;'>";
-                        echo "<input type='hidden' name='type' value='post'>";
                         echo "<input type='hidden' name='id' value='{$row['tweet_id']}'>";
-                        echo "<button type='submit' name='delete' style='color: white; background-color: red; border: none; padding: 5px 10px;'>Delete Post</button>";
+                        echo "<button type='submit' class='btn-red'>Delete Post</button>";
                         echo "</form>";
                     }
 
                     // Comment button 
-                    echo "<button onclick='openModal({$row['tweet_id']})' style='color: white; background-color: blue; border: none; padding: 5px 10px;'>Comment</button>";
-
+                    echo "<button onclick='openModal({$row['tweet_id']})' class='btn-blue'>Comment</button>";
+                    echo "</div>";  // Close buttons div
+                    echo "</div>";  // Close post div
                     $postShown = true; 
                 }
 
                 // Display comments, if any exist
                 if (!empty($row['comment_content'])) {
-                    echo "<div style='margin-top: 10px; padding: 10px; border-top: 1px solid #ddd;'>";
+                    echo "<div class='comment'>";
                     echo "<p><strong>Comments:</strong></p>";
                     echo "<p>{$row['comment_content']}</p>";
                     echo "<p><em>Commented on {$row['comment_created_at']}</em></p>";
-                    echo "</div>";  
 
                     // Display the delete button if it's the owner of the tweet or the owner of the comment
                     if ($userId == $row['comment_owner_id'] || $userId == $row['tweet_owner_id']) {
                         echo "<form method='post' action='deleteCommentHandler.php' style='display:inline;'>";
-                        echo "<input type='hidden' name='type' value='comment'>";
-                        echo "<input type='hidden' name='tweet_id' value='{$row['comment_id']}'>";
-                        echo "<input type='hidden' name='tweet_id2' value='{$row['tweet_id']}'>";
-                        echo "<button type='submit' name='delete' style='color: white; background-color: red; border: none; padding: 5px 10px;'>Delete Comment</button>";
+                        echo "<input type='hidden' name='comment_id' value='{$row['comment_id']}'>";
+                        echo "<button type='submit' class='btn-red'>Delete Comment</button>";
                         echo "</form>";
                     }
 
@@ -213,10 +213,23 @@
                     }
 
                     // Reply button
-                    echo "<form method='get' action='replies.php' style='margin-top: 10px;'>";
+                    echo "<form method='get' action='replies.php' style='display:inline;'>";
                     echo "<input type='hidden' name='comment_id' value='{$row['comment_id']}'>";
-                    echo "<button type='submit' name='update' style='color: white; background-color: green; border: none; padding: 5px 10px; cursor: pointer;'>Reply</button>";
+                    echo "<button type='submit' class='btn-green'>Reply</button>";
                     echo "</form>";
+                                        // Like button 
+                                        echo "<form method='post' action='Handlers/commentLikeHandler.php' style='margin-top: 10px;'>";
+                                        echo "<input type='hidden' name='commenet_like_id' value='{$row['comment_id']}'>";
+                                        echo "<button type='submit' name='like' style='color: white; background-color: green; border: none; padding: 5px 10px; cursor: pointer;'>Like</button>";
+                                        echo "</form>";
+                    
+                                        // Dislike button 
+                                        echo "<form method='post' action='Handlers/commentDislikeHandler.php' style='margin-top: 10px;'>";
+                                        echo "<input type='hidden' name='comment_dislike_id' value='{$row['comment_id']}'>";
+                                        echo "<button type='submit' name='dislike' style='color: white; background-color: red; border: none; padding: 5px 10px; cursor: pointer;'>Dislike</button>";
+                                        echo "</form>";
+                    echo "</div>"; // Close buttons div
+                    echo "</div>"; // Close comment div
 
                     // Like button 
                     echo "<form method='post' action='Handlers/commentLikeHandler.php' style='margin-top: 10px;'>";
