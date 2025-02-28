@@ -1,7 +1,10 @@
 <?php
     include("database.php");
     include("navbar.php");
-    session_start();
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+
 ?>
 
 <!DOCTYPE html>
@@ -88,25 +91,34 @@
         exit;
     }
     $userId = $_SESSION['user_id'];
+    $email = filter_input(INPUT_POST, "email", FILTER_SANITIZE_SPECIAL_CHARS);
+    $password = filter_input(INPUT_POST, "password", FILTER_SANITIZE_SPECIAL_CHARS);
 
     // Fetch the tweet data
-    $sql = "SELECT id, username, email FROM users WHERE id = ?";
-    $stmt = mysqli_prepare($connection, $sql);
-    mysqli_stmt_bind_param($stmt, "i", $_SESSION['user_id']);
-    mysqli_stmt_execute($stmt);
-    $result = mysqli_stmt_get_result($stmt);
-    
-    if ($row = mysqli_fetch_assoc($result)) {
-        // Password Form
-        echo "<h1>Change Password</h1>";
-        echo "<form method='post' action='Handlers/passwordUpdateHandler.php'>";
-        echo "<label>New Password:</label>";
-        echo "<input type='password' name='new_password' required><br>";
-        echo "<button type='submit'  name='submit' style='margin-top: 10px; background-color: blue; color: white; padding: 10px 20px; border: none;'>Save</button>";
-        echo "</form>";
-    }
-    else {
-        echo "Unable to fetch profile details.";
+    if (!empty($email) && !empty($password)) {
+        $sql = "SELECT password FROM users WHERE id = ? AND email = ?";
+        $stmt = mysqli_prepare($connection, $sql);
+        mysqli_stmt_bind_param($stmt, "is", $userId, $email);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+        
+        if ($row = mysqli_fetch_assoc($result)) {
+            // Password Form
+            if (password_verify($password, $row["password"])) {
+                echo "<h1>Change Password</h1>";
+                echo "<form method='post' action='Handlers/passwordUpdateHandler.php'>";
+                echo "<label>New Password:</label>";
+                echo "<input type='password' name='new_password' required><br>";
+                echo "<button type='submit'  name='submit' style='margin-top: 10px; background-color: blue; color: white; padding: 10px 20px; border: none;'>Save</button>";
+                echo "</form>";
+            }
+            else {
+                echo "Wrong password";
+            }
+        }
+        else {
+            echo "Unable to fetch profile details.";
+        }
     }
     mysqli_close($connection);
 ?>

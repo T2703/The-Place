@@ -142,6 +142,7 @@
         tweets.created_at AS tweet_created_at,
         tweets.user_id AS tweet_owner_id,
         users.username AS tweet_author,
+        users.pfp as tweet_pfp,
         comments.id AS comment_id,
         comments.content AS comment_content,
         comments.created_at AS comment_created_at,
@@ -170,12 +171,24 @@
                 if (!$postShown) {
                     echo "<div class='container'>";
                     echo "<div class='post'>";
-                    echo "<p><strong>Post by: {$row['tweet_author']}</strong></p>";
-                    echo "<p><strong>Title:</strong> {$row['tweet_title']}</p>";
-                    echo "<p>{$row['tweet_content']}</p>";
-                    echo "<p><em>Posted on {$row['tweet_created_at']}</em></p>";
-
+                    echo "<p><strong>{$row['tweet_author']}</strong></p>";
+                    echo "<p class='title'>{$row['tweet_title']}</p>";
+                    echo "<p class='content'>{$row['tweet_content']}</p>";
+                    echo "<p class='meta'>Posted on " . date("F d, Y", strtotime($row['tweet_created_at'])) . "</p>";
+                    
                     echo "<div class='buttons'>";
+
+                    // Like button 
+                    echo "<form method='post' action='Handlers/commentLikeHandler.php' style='margin-top: 10px;'>";
+                    echo "<input type='hidden' name='commenet_like_id' value='{$row['comment_id']}'>";
+                    echo "<button type='submit' name='like' style='color: white; background-color: green; border: none; padding: 5px 10px; cursor: pointer;'>Like</button>";
+                    echo "</form>";
+
+                    // Dislike button 
+                    echo "<form method='post' action='Handlers/commentDislikeHandler.php' style='margin-top: 10px;'>";
+                    echo "<input type='hidden' name='comment_dislike_id' value='{$row['comment_id']}'>";
+                    echo "<button type='submit' name='dislike' style='color: white; background-color: red; border: none; padding: 5px 10px; cursor: pointer;'>Dislike</button>";
+                    echo "</form>";
                     // Show delete button for post owner
                     if ($userId == $row['tweet_owner_id']) {
                         echo "<form method='post' action='Handlers/deleteTweetHandler.php' style='display:inline;'>";
@@ -217,32 +230,11 @@
                     echo "<input type='hidden' name='comment_id' value='{$row['comment_id']}'>";
                     echo "<button type='submit' class='btn-green'>Reply</button>";
                     echo "</form>";
-                                        // Like button 
-                                        echo "<form method='post' action='Handlers/commentLikeHandler.php' style='margin-top: 10px;'>";
-                                        echo "<input type='hidden' name='commenet_like_id' value='{$row['comment_id']}'>";
-                                        echo "<button type='submit' name='like' style='color: white; background-color: green; border: none; padding: 5px 10px; cursor: pointer;'>Like</button>";
-                                        echo "</form>";
-                    
-                                        // Dislike button 
-                                        echo "<form method='post' action='Handlers/commentDislikeHandler.php' style='margin-top: 10px;'>";
-                                        echo "<input type='hidden' name='comment_dislike_id' value='{$row['comment_id']}'>";
-                                        echo "<button type='submit' name='dislike' style='color: white; background-color: red; border: none; padding: 5px 10px; cursor: pointer;'>Dislike</button>";
-                                        echo "</form>";
-                    echo "</div>"; // Close buttons div
-                    echo "</div>"; // Close comment div
 
-                    // Like button 
-                    echo "<form method='post' action='Handlers/commentLikeHandler.php' style='margin-top: 10px;'>";
-                    echo "<input type='hidden' name='commenet_like_id' value='{$row['comment_id']}'>";
-                    echo "<button type='submit' name='like' style='color: white; background-color: green; border: none; padding: 5px 10px; cursor: pointer;'>Like</button>";
-                    echo "</form>";
-
-                    // Dislike button 
-                    echo "<form method='post' action='Handlers/commentDislikeHandler.php' style='margin-top: 10px;'>";
-                    echo "<input type='hidden' name='comment_dislike_id' value='{$row['comment_id']}'>";
-                    echo "<button type='submit' name='dislike' style='color: white; background-color: red; border: none; padding: 5px 10px; cursor: pointer;'>Dislike</button>";
-                    echo "</form>";
                 }
+
+                echo "</div>"; // Close buttons div
+                echo "</div>"; // Close comment div
 
                 // Inform that there are no comments
                 if ($postShown && mysqli_num_rows($result) == 0) {
