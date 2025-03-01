@@ -12,7 +12,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comment on Post</title>
+    <title>Comment</title>
     <link rel="stylesheet" href="styles/comment.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <style>
@@ -171,6 +171,9 @@
                 if (!$postShown) {
                     echo "<div class='container'>";
                     echo "<div class='post'>";
+                    if (!empty($row['tweet_pfp'])) {
+                        echo "<img src='Handlers/displayPFPHandler.php?user_id={$row['tweet_owner_id']}' class='pfp'>";
+                    }
                     echo "<p><strong>{$row['tweet_author']}</strong></p>";
                     echo "<p class='title'>{$row['tweet_title']}</p>";
                     echo "<p class='content'>{$row['tweet_content']}</p>";
@@ -209,7 +212,7 @@
                     echo "<div class='comment'>";
                     echo "<p><strong>Comments:</strong></p>";
                     echo "<p>{$row['comment_content']}</p>";
-                    echo "<p><em>Commented on {$row['comment_created_at']}</em></p>";
+                    echo "<p class='meta'>Commented on " . date("F d, Y", strtotime($row['comment_created_at'])) . "</p>";
 
                     // Display the delete button if it's the owner of the tweet or the owner of the comment
                     if ($userId == $row['comment_owner_id'] || $userId == $row['tweet_owner_id']) {
